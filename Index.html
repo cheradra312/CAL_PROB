@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Estratégica de Probabilidades para Oposiciones</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom styles for number input arrows */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        /* Custom styles for mode selector */
+        .mode-selector input:checked + label {
+            background-color: #4f46e5; /* indigo-600 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .lock-icon {
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
+        .lock-icon:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-3xl md:text-4xl font-bold text-slate-900">Calculadora Estratégica de Oposición</h1>
+                <p class="mt-2 text-slate-600 max-w-2xl mx-auto">
+                    Elige un modo: calcula tu probabilidad actual o descubre cuántos temas estudiar para alcanzar un objetivo.
+                </p>
+            </div>
+
+            <!-- Mode Selector -->
+            <div class="mode-selector flex justify-center mb-8 bg-slate-200 p-1 rounded-xl shadow-inner">
+                <input type="radio" id="mode-topic" name="mode" value="topic" class="sr-only" checked>
+                <label for="mode-topic" class="w-1/2 text-center font-semibold py-2 px-4 rounded-lg cursor-pointer transition-all duration-300">Calcular por Temas</label>
+                
+                <input type="radio" id="mode-percent" name="mode" value="percent" class="sr-only">
+                <label for="mode-percent" class="w-1/2 text-center font-semibold py-2 px-4 rounded-lg cursor-pointer transition-all duration-300">Calcular por Porcentaje</label>
+            </div>
+
+            <!-- Main Content Area -->
+            <div id="content-area">
+                <!-- Mode 1: Calculate by Topics -->
+                <div id="mode-by-topic-content">
+                    <div id="blocks-container-topic" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <!-- Topic mode blocks will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                <!-- Mode 2: Calculate by Percentage -->
+                <div id="mode-by-percent-content" class="hidden">
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 mb-8">
+                         <h2 class="text-2xl font-bold text-slate-900 text-center mb-2">Modo Estratégico</h2>
+                         <p class="text-center text-slate-500 mb-6">Fija un objetivo y bloquea los temas que ya sabes para calcular el resto.</p>
+                        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                            <label for="desired-probability" class="text-slate-600 font-medium">Probabilidad Total Deseada:</label>
+                            <div class="relative">
+                                <input type="number" id="desired-probability" min="0" max="100" value="95" class="w-28 text-center font-bold text-lg bg-slate-100 border-2 border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-lg font-bold text-slate-500">%</span>
+                            </div>
+                            <button id="calculate-optimal-btn" class="bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-indigo-700 transition-colors shadow">
+                                Calcular
+                            </button>
+                        </div>
+                        <div id="optimizer-message" class="text-center mt-4 font-semibold"></div>
+                    </div>
+                    <div id="blocks-container-percent" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <!-- Percentage mode blocks will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shared Summary Section -->
+            <div id="summary" class="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+                <h2 class="text-2xl font-bold text-slate-900 text-center mb-4">Resumen General</h2>
+                <div class="flex flex-col md:flex-row justify-around items-center text-center space-y-4 md:space-y-0">
+                    <div class="w-full md:w-1/2">
+                        <p class="text-slate-500 uppercase tracking-wider text-sm font-semibold">Temas Estudiados</p>
+                        <p id="total-summary" class="text-3xl font-bold text-slate-800 mt-1">0 / 147</p>
+                    </div>
+                    <div class="w-full md:w-1/2">
+                        <p class="text-slate-500 uppercase tracking-wider text-sm font-semibold">Probabilidad Total de Éxito</p>
+                        <p id="overall-probability" class="text-4xl font-bold text-green-600 mt-1">0.00%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- CONFIGURATION & STATE ---
+        const blocksConfig = [
+            { id: 'admin', name: 'Administrativo', total: 17 },
+            { id: 'aguas', name: 'Aguas y costas', total: 48 },
+            { id: 'carreteras', name: 'Carreteras y Ferrocarriles', total: 46 },
+            { id: 'transportes', name: 'Transportes y MA', total: 36 }
+        ];
+
+        let state = {
+            mode: 'topic', // 'topic' or 'percent'
+            lockedBlocks: {} // e.g., { admin: true, aguas: false }
+        };
+        blocksConfig.forEach(b => state.lockedBlocks[b.id] = false);
+
+        // --- DOM ELEMENTS ---
+        const modeSelectors = document.querySelectorAll('input[name="mode"]');
+        const topicContent = document.getElementById('mode-by-topic-content');
+        const percentContent = document.getElementById('mode-by-percent-content');
+        const topicContainer = document.getElementById('blocks-container-topic');
+        const percentContainer = document.getElementById('blocks-container-percent');
+        const calculateOptimalBtn = document.getElementById('calculate-optimal-btn');
+        const optimizerMessage = document.getElementById('optimizer-message');
+
+        // --- TEMPLATES ---
+        const blockTemplate = (block, mode) => {
+            const isLocked = state.lockedBlocks[block.id];
+            const isPercentMode = mode === 'percent';
+            const inputId = `${block.id}-input-${mode}`;
+            const lockIcon = isLocked ?
+                `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-600"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>` :
+                `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>`;
+
+            return `
+                <div class="block-card bg-white p-6 rounded-xl shadow-md border border-slate-200" data-id="${block.id}" data-total="${block.total}">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h2 class="text-xl font-semibold text-slate-800">${block.name}</h2>
+                            <p class="text-sm text-slate-500">Total: ${block.total} temas</p>
+                        </div>
+                        ${isPercentMode ? `<div class="lock-icon" data-id="${block.id}">${lockIcon}</div>` : ''}
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label for="${inputId}" class="text-sm font-medium text-slate-600">Temas estudiados:</label>
+                        <input 
+                            type="number" 
+                            id="${inputId}" 
+                            class="studied-input w-full mt-1 p-2 border-2 ${isPercentMode && !isLocked ? 'bg-slate-100' : 'bg-white'} border-slate-200 rounded-lg text-center font-semibold text-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" 
+                            min="0" 
+                            max="${block.total}" 
+                            value="0"
+                            ${isPercentMode && !isLocked ? 'readonly' : ''}>
+                    </div>
+
+                    <div class="mt-4 text-center bg-indigo-50 p-3 rounded-lg">
+                        <span class="text-sm text-indigo-800 font-semibold">Probabilidad en bloque:</span>
+                        <p class="text-2xl font-bold text-indigo-600 probability-output">0.00%</p>
+                    </div>
+                </div>
+            `;
+        };
+
+        // --- CORE LOGIC ---
+        const getProb = (studied, total) => {
+            if (studied >= total - 1) return 1;
+            if (studied < 0 || total < 2) return 0;
+            const probFail = ((total - studied) / total) * ((total - studied - 1) / (total - 1));
+            return 1 - probFail;
+        };
+
+        const updateUI = () => {
+            topicContainer.innerHTML = blocksConfig.map(b => blockTemplate(b, 'topic')).join('');
+            percentContainer.innerHTML = blocksConfig.map(b => blockTemplate(b, 'percent')).join('');
+            topicContent.classList.toggle('hidden', state.mode !== 'topic');
+            percentContent.classList.toggle('hidden', state.mode !== 'percent');
+            addInputListeners();
+            addLockListeners();
+            calculateAndDisplayProbabilities();
+        };
+
+        const calculateAndDisplayProbabilities = () => {
+            const containerId = state.mode === 'topic' ? '#blocks-container-topic' : '#blocks-container-percent';
+            let totalStudied = 0;
+            let grandTotalTopics = 0;
+            let overallProbability = 1;
+
+            document.querySelectorAll(`${containerId} .block-card`).forEach(card => {
+                const total = parseInt(card.dataset.total, 10);
+                const input = card.querySelector('.studied-input');
+                let studied = parseInt(input.value, 10);
+
+                if (isNaN(studied) || studied < 0) studied = 0;
+                if (studied > total) studied = total;
+                input.value = studied;
+                
+                const blockProb = getProb(studied, total);
+                card.querySelector('.probability-output').textContent = `${(blockProb * 100).toFixed(2)}%`;
+
+                totalStudied += studied;
+                grandTotalTopics += total;
+                overallProbability *= blockProb;
+            });
+
+            document.getElementById('total-summary').textContent = `${totalStudied} / ${grandTotalTopics}`;
+            document.getElementById('overall-probability').textContent = `${(overallProbability * 100).toFixed(2)}%`;
+        };
+        
+        const handleOptimalCalculation = () => {
+            optimizerMessage.textContent = '';
+            const targetOverallProb = parseFloat(document.getElementById('desired-probability').value) / 100;
+            if (isNaN(targetOverallProb) || targetOverallProb < 0 || targetOverallProb > 1) {
+                optimizerMessage.textContent = 'Porcentaje objetivo inválido.';
+                optimizerMessage.className = 'text-center mt-4 font-semibold text-red-600';
+                return;
+            }
+
+            let lockedProb = 1;
+            const unlockedBlocks = [];
+            const studiedTopics = {};
+            
+            blocksConfig.forEach(block => {
+                const input = document.getElementById(`${block.id}-input-percent`);
+                const studied = parseInt(input.value, 10);
+                studiedTopics[block.id] = studied;
+                if (state.lockedBlocks[block.id]) {
+                    lockedProb *= getProb(studied, block.total);
+                } else {
+                    unlockedBlocks.push(block);
+                    studiedTopics[block.id] = 0; // Reset unlocked blocks
+                }
+            });
+            
+            const unlockedTargetProb = lockedProb > 0 ? targetOverallProb / lockedProb : Infinity;
+
+            if (unlockedTargetProb > 1) {
+                optimizerMessage.textContent = 'Objetivo inalcanzable con los temas fijados.';
+                optimizerMessage.className = 'text-center mt-4 font-semibold text-red-600';
+                return;
+            }
+
+            let currentUnlockedProb = unlockedBlocks.reduce((acc, b) => acc * getProb(studiedTopics[b.id], b.total), 1);
+
+            // Greedy algorithm to add topics one by one
+            while (currentUnlockedProb < unlockedTargetProb) {
+                let bestBlockId = null;
+                let maxGain = -1;
+
+                for (const block of unlockedBlocks) {
+                    const currentStudied = studiedTopics[block.id];
+                    if (currentStudied >= block.total - 1) continue;
+
+                    // **FIXED LOGIC**: Calculate marginal gain for the block
+                    const probBefore = getProb(currentStudied, block.total);
+                    const probAfter = getProb(currentStudied + 1, block.total);
+                    const gain = probAfter - probBefore;
+
+                    if (gain > maxGain) {
+                        maxGain = gain;
+                        bestBlockId = block.id;
+                    }
+                }
+
+                if (bestBlockId === null) break; // Cannot improve further
+                
+                studiedTopics[bestBlockId]++;
+                currentUnlockedProb = unlockedBlocks.reduce((acc, b) => acc * getProb(studiedTopics[b.id], b.total), 1);
+            }
+            
+            // Update UI with results
+            Object.keys(studiedTopics).forEach(id => {
+                if (!state.lockedBlocks[id]) { // Only update unlocked blocks
+                    document.getElementById(`${id}-input-percent`).value = studiedTopics[id];
+                }
+            });
+            
+            optimizerMessage.textContent = '¡Cálculo completado!';
+            optimizerMessage.className = 'text-center mt-4 font-semibold text-green-600';
+            calculateAndDisplayProbabilities();
+        };
+
+        // --- EVENT LISTENERS ---
+        const handleModeChange = (e) => {
+            state.mode = e.target.value;
+            updateUI();
+        };
+
+        const addInputListeners = () => {
+            const containerId = state.mode === 'topic' ? '#blocks-container-topic' : '#blocks-container-percent';
+            document.querySelectorAll(`${containerId} .studied-input`).forEach(input => {
+                input.addEventListener('input', calculateAndDisplayProbabilities);
+            });
+        };
+
+        const addLockListeners = () => {
+            document.querySelectorAll('#blocks-container-percent .lock-icon').forEach(icon => {
+                icon.addEventListener('click', (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    state.lockedBlocks[id] = !state.lockedBlocks[id];
+                    // Re-render only the percent container to reflect the lock change
+                    percentContainer.innerHTML = blocksConfig.map(b => blockTemplate(b, 'percent')).join('');
+                    addLockListeners();
+                    addInputListeners();
+                });
+            });
+        };
+        
+        modeSelectors.forEach(sel => sel.addEventListener('change', handleModeChange));
+        calculateOptimalBtn.addEventListener('click', handleOptimalCalculation);
+
+        // --- INITIALIZATION ---
+        updateUI();
+    });
+    </script>
+</body>
+</html>
+
