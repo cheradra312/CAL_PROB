@@ -12,7 +12,6 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Custom styles for number input arrows */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button {
             -webkit-appearance: none;
@@ -21,7 +20,6 @@
         input[type=number] {
             -moz-appearance: textfield;
         }
-        /* Custom styles for mode selector */
         .mode-selector input:checked + label {
             background-color: #4f46e5; /* indigo-600 */
             color: white;
@@ -40,7 +38,6 @@
 
     <div class="container mx-auto p-4 sm:p-6 md:p-8">
         <div class="max-w-4xl mx-auto">
-            <!-- Header -->
             <div class="text-center mb-8">
                 <h1 class="text-3xl md:text-4xl font-bold text-slate-900">Calculadora Estratégica de Oposición</h1>
                 <p class="mt-2 text-slate-600 max-w-2xl mx-auto">
@@ -48,7 +45,6 @@
                 </p>
             </div>
 
-            <!-- Mode Selector -->
             <div class="mode-selector flex justify-center mb-8 bg-slate-200 p-1 rounded-xl shadow-inner">
                 <input type="radio" id="mode-topic" name="mode" value="topic" class="sr-only" checked>
                 <label for="mode-topic" class="w-1/2 text-center font-semibold py-2 px-4 rounded-lg cursor-pointer transition-all duration-300">Calcular por Temas</label>
@@ -57,16 +53,12 @@
                 <label for="mode-percent" class="w-1/2 text-center font-semibold py-2 px-4 rounded-lg cursor-pointer transition-all duration-300">Calcular por Porcentaje</label>
             </div>
 
-            <!-- Main Content Area -->
             <div id="content-area">
-                <!-- Mode 1: Calculate by Topics -->
                 <div id="mode-by-topic-content">
                     <div id="blocks-container-topic" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <!-- Topic mode blocks will be dynamically inserted here -->
                     </div>
                 </div>
 
-                <!-- Mode 2: Calculate by Percentage -->
                 <div id="mode-by-percent-content" class="hidden">
                     <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 mb-8">
                          <h2 class="text-2xl font-bold text-slate-900 text-center mb-2">Modo Estratégico</h2>
@@ -84,12 +76,10 @@
                         <div id="optimizer-message" class="text-center mt-4 font-semibold"></div>
                     </div>
                     <div id="blocks-container-percent" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <!-- Percentage mode blocks will be dynamically inserted here -->
                     </div>
                 </div>
             </div>
 
-            <!-- Shared Summary Section -->
             <div id="summary" class="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
                 <h2 class="text-2xl font-bold text-slate-900 text-center mb-4">Resumen General</h2>
                 <div class="flex flex-col md:flex-row justify-around items-center text-center space-y-4 md:space-y-0">
@@ -108,7 +98,6 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // --- CONFIGURATION & STATE ---
         const blocksConfig = [
             { id: 'admin', name: 'Administrativo', total: 17 },
             { id: 'aguas', name: 'Aguas y costas', total: 48 },
@@ -117,12 +106,11 @@
         ];
 
         let state = {
-            mode: 'topic', // 'topic' or 'percent'
-            lockedBlocks: {} // e.g., { admin: true, aguas: false }
+            mode: 'topic',
+            lockedBlocks: {}
         };
         blocksConfig.forEach(b => state.lockedBlocks[b.id] = false);
 
-        // --- DOM ELEMENTS ---
         const modeSelectors = document.querySelectorAll('input[name="mode"]');
         const topicContent = document.getElementById('mode-by-topic-content');
         const percentContent = document.getElementById('mode-by-percent-content');
@@ -131,7 +119,6 @@
         const calculateOptimalBtn = document.getElementById('calculate-optimal-btn');
         const optimizerMessage = document.getElementById('optimizer-message');
 
-        // --- TEMPLATES ---
         const blockTemplate = (block, mode) => {
             const isLocked = state.lockedBlocks[block.id];
             const isPercentMode = mode === 'percent';
@@ -170,7 +157,6 @@
             `;
         };
 
-        // --- CORE LOGIC ---
         const getProb = (studied, total) => {
             if (studied >= total - 1) return 1;
             if (studied < 0 || total < 2) return 0;
@@ -236,7 +222,7 @@
                     lockedProb *= getProb(studied, block.total);
                 } else {
                     unlockedBlocks.push(block);
-                    studiedTopics[block.id] = 0; // Reset unlocked blocks
+                    studiedTopics[block.id] = 0;
                 }
             });
             
@@ -250,7 +236,6 @@
 
             let currentUnlockedProb = unlockedBlocks.reduce((acc, b) => acc * getProb(studiedTopics[b.id], b.total), 1);
 
-            // Greedy algorithm to add topics one by one
             while (currentUnlockedProb < unlockedTargetProb) {
                 let bestBlockId = null;
                 let maxGain = -1;
@@ -258,8 +243,6 @@
                 for (const block of unlockedBlocks) {
                     const currentStudied = studiedTopics[block.id];
                     if (currentStudied >= block.total - 1) continue;
-
-                    // **FIXED LOGIC**: Calculate marginal gain for the block
                     const probBefore = getProb(currentStudied, block.total);
                     const probAfter = getProb(currentStudied + 1, block.total);
                     const gain = probAfter - probBefore;
@@ -270,15 +253,14 @@
                     }
                 }
 
-                if (bestBlockId === null) break; // Cannot improve further
+                if (bestBlockId === null) break;
                 
                 studiedTopics[bestBlockId]++;
                 currentUnlockedProb = unlockedBlocks.reduce((acc, b) => acc * getProb(studiedTopics[b.id], b.total), 1);
             }
             
-            // Update UI with results
             Object.keys(studiedTopics).forEach(id => {
-                if (!state.lockedBlocks[id]) { // Only update unlocked blocks
+                if (!state.lockedBlocks[id]) {
                     document.getElementById(`${id}-input-percent`).value = studiedTopics[id];
                 }
             });
@@ -288,7 +270,6 @@
             calculateAndDisplayProbabilities();
         };
 
-        // --- EVENT LISTENERS ---
         const handleModeChange = (e) => {
             state.mode = e.target.value;
             updateUI();
@@ -306,7 +287,6 @@
                 icon.addEventListener('click', (e) => {
                     const id = e.currentTarget.dataset.id;
                     state.lockedBlocks[id] = !state.lockedBlocks[id];
-                    // Re-render only the percent container to reflect the lock change
                     percentContainer.innerHTML = blocksConfig.map(b => blockTemplate(b, 'percent')).join('');
                     addLockListeners();
                     addInputListeners();
@@ -314,13 +294,27 @@
             });
         };
         
+        const readUrlParamsAndCalculate = () => {
+            const params = new URLSearchParams(window.location.search);
+            let paramsFound = false;
+            params.forEach((value, key) => {
+                const input = document.getElementById(`${key}-input-topic`);
+                if (input) {
+                    input.value = value;
+                    paramsFound = true;
+                }
+            });
+            if (paramsFound) {
+                calculateAndDisplayProbabilities();
+            }
+        };
+
         modeSelectors.forEach(sel => sel.addEventListener('change', handleModeChange));
         calculateOptimalBtn.addEventListener('click', handleOptimalCalculation);
 
-        // --- INITIALIZATION ---
         updateUI();
+        readUrlParamsAndCalculate();
     });
     </script>
 </body>
 </html>
-
