@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora y Simulador de Examen para Oposiciones</title>
+    <title>Herramienta Estratégica de Oposición y Simulador de Examen</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,15 +12,31 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+        /* Oculta las flechas de los inputs numéricos */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        /* Estilo para el selector de modo activo */
         .mode-selector input:checked + label {
-            background-color: #4f46e5;
+            background-color: #4f46e5; /* indigo-600 */
             color: white;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
-        .lock-icon { cursor: pointer; transition: all 0.2s ease-in-out; }
-        .lock-icon:hover { transform: scale(1.1); }
+        /* Icono de candado */
+        .lock-icon { 
+            cursor: pointer; 
+            transition: transform 0.2s ease-in-out, color 0.2s ease-in-out; 
+        }
+        .lock-icon:hover { 
+            transform: scale(1.1); 
+        }
 
-        /* --- ESTILOS SIMULACIÓN 3D --- */
+        /* --- ESTILOS ESPECÍFICOS PARA LA SIMULACIÓN 3D --- */
         #simulation-container.active {
             background: radial-gradient(circle, #3a3a5a, #1a1a2e);
             padding-top: 1rem;
@@ -29,7 +45,7 @@
         }
         #bombo-canvas-container {
             width: 100%;
-            height: 350px;
+            height: 350px; /* Altura fija para el canvas del bombo */
             position: relative;
             margin-bottom: 1rem;
         }
@@ -41,9 +57,9 @@
             align-items: flex-start;
             cursor: pointer;
             padding: 0.5rem;
-            border-radius: 9999px;
+            border-radius: 9999px; /* Para que parezca una píldora inicialmente */
             transition: all 0.4s ease-in-out;
-            overflow: hidden;
+            overflow: hidden; /* Oculta el texto extra hasta que se expande */
         }
         .result-ball .ball-id {
             flex-shrink: 0;
@@ -59,7 +75,7 @@
             font-size: 0.9rem;
         }
         .result-ball .topic-details {
-            max-height: 0;
+            max-height: 0; /* Oculto por defecto */
             opacity: 0;
             overflow: hidden;
             transition: max-height 0.5s ease-in-out, opacity 0.3s ease-in-out, margin-left 0.4s ease-in-out, padding-left 0.4s ease-in-out;
@@ -67,18 +83,19 @@
             padding-left: 0;
         }
         .result-ball.expanded {
-            border-radius: 12px;
-            align-items: flex-start;
+            border-radius: 12px; /* Cambia a un rectángulo redondeado al expandir */
+            align-items: flex-start; /* Alinea el contenido al inicio */
         }
         .result-ball.expanded .topic-details {
-            max-height: 500px;
+            max-height: 500px; /* Altura máxima para mostrar el contenido */
             opacity: 1;
             margin-left: 0.75rem;
             padding-left: 0.75rem;
         }
         .result-ball.expanded .topic-details p {
-            white-space: normal;
+            white-space: normal; /* Permite que el texto se ajuste */
         }
+        /* Animación de entrada para las bolas de resultado */
         .result-ball-wrapper {
             opacity: 0;
             transform: translateY(20px);
@@ -100,10 +117,11 @@
                 </p>
             </div>
 
+            <!-- Selector de Modos -->
             <div class="mode-selector flex flex-col sm:flex-row justify-center mb-8 bg-slate-200 p-1 rounded-xl shadow-inner max-w-2xl mx-auto">
                 <input type="radio" id="mode-topic" name="mode" value="topic" class="sr-only" checked>
                 <label for="mode-topic" class="w-full sm:w-1/3 text-center font-semibold py-2 px-4 rounded-lg cursor-pointer transition-all duration-300">Calcular por Temas</label>
-
+                
                 <input type="radio" id="mode-percent" name="mode" value="percent" class="sr-only">
                 <label for="mode-percent" class="w-full sm:w-1/3 text-center font-semibold py-2 px-4 rounded-lg cursor-pointer transition-all duration-300">Calcular por %</label>
 
@@ -114,8 +132,11 @@
             <div id="content-area">
                 <!-- Contenido Calculadora por Temas -->
                 <div id="mode-by-topic-content">
-                    <div id="blocks-container-topic" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"></div>
-                     <div id="summary-calc" class="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+                    <div id="blocks-container-topic" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <!-- Los bloques se generarán aquí por JS -->
+                    </div>
+                    <!-- Resumen General para el modo "Calcular por Temas" -->
+                    <div id="summary-calc" class="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
                         <h2 class="text-2xl font-bold text-slate-900 text-center mb-4">Resumen General</h2>
                         <div class="flex flex-col md:flex-row justify-around items-center text-center space-y-4 md:space-y-0">
                             <div class="w-full md:w-1/2">
@@ -133,8 +154,8 @@
                 <!-- Contenido Calculadora por Porcentaje -->
                 <div id="mode-by-percent-content" class="hidden">
                     <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 mb-8">
-                         <h2 class="text-2xl font-bold text-slate-900 text-center mb-2">Modo Estratégico</h2>
-                         <p class="text-center text-slate-500 mb-6">Fija un objetivo y bloquea los temas que ya sabes para calcular el resto.</p>
+                        <h2 class="text-2xl font-bold text-slate-900 text-center mb-2">Modo Estratégico</h2>
+                        <p class="text-center text-slate-500 mb-6">Fija un objetivo y bloquea los temas que ya sabes para calcular el resto.</p>
                         <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
                             <label for="desired-probability" class="text-slate-600 font-medium">Probabilidad Total Deseada:</label>
                             <div class="relative">
@@ -147,7 +168,9 @@
                         </div>
                         <div id="optimizer-message" class="text-center mt-4 font-semibold"></div>
                     </div>
-                    <div id="blocks-container-percent" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"></div>
+                    <div id="blocks-container-percent" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <!-- Los bloques se generarán aquí por JS -->
+                    </div>
                 </div>
 
                 <!-- Contenido Simulación de Examen -->
@@ -173,6 +196,7 @@
                                 <h3 class="text-xl font-bold text-lime-300 mb-4 text-center">Transportes y MA</h3>
                                 <div id="results-transportes" class="space-y-3"></div>
                             </div>
+                            <!-- Administrativo no tiene bombo, pero se podría añadir si se desea -->
                         </div>
                     </div>
                 </div>
@@ -180,6 +204,7 @@
         </div>
     </div>
 
+    <!-- Importaciones de Three.js y Tone.js -->
     <script type="importmap">
         {
             "imports": {
@@ -188,7 +213,6 @@
             }
         }
     </script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
 
     <script type="module">
@@ -199,158 +223,164 @@
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
         // --- CONFIGURACIÓN Y DATOS ---
+        // Configuración de los bloques de temas para la calculadora
         const blocksConfig = [
             { id: 'admin', name: 'Administrativo', total: 17 },
             { id: 'aguas', name: 'Aguas y costas', total: 48 },
             { id: 'carreteras', name: 'Carreteras y Ferrocarriles', total: 46 },
             { id: 'transportes', name: 'Transportes y MA', total: 36 }
         ];
-        
+
+        // Temario detallado para la simulación del bombo
         const temario = {
-            "aguas": { name: "Aguas y Costas", color: 0x0891b2, topics: [
-                { id: "A.1.1", text: "Marco normativo en materia de aguas en España. Elementos que regula el texto refundido de la Ley de Aguas. Organización de la Administración Hidráulica en España. Reglamento del Dominio Público Hidráulico. Dominio Público Hidráulico: aguas públicas y privadas. Utilización del Dominio Público Hidráulico: servidumbres, usos comunes y privativos, concesiones y autorizaciones, registro de aguas y régimen jurídico de las comunidades de usuarios. Reconocimiento de derechos anteriores a 1986. Protección del Dominio Público Hidráulico y de la calidad de las aguas continentales: zonas de servidumbre y de policía, apeo y deslinde; vertidos; reutilización. Régimen económico-financiero de la utilización del dominio público hidráulico. Infracciones y sanciones. Contrato de cesión de derechos al uso privativo de las aguas públicas. Seguridad de presas, embalses y balsas." },
-                { id: "A.1.2", text: "Directiva 2000/60/CE Marco del Agua y directivas relacionadas. Objetivos medioambientales. Tipos de masas de agua, caracterización de masas de agua, presiones e impactos. Estado ecológico, potencial ecológico y designación de masas artificiales y muy modificadas. Real Decreto 817/2015, de 11 de septiembre, por el que se establecen los criterios de seguimiento y evaluación del estado de las aguas superficiales y las normas de calidad ambiental. Reglamento de planificación hidrológica. Marco normativo de los Planes hidrológicos. Características de la demarcación hidrográfica. Recuperación de costes. Programa de medidas." },
-                { id: "A.1.3", text: "Avenidas e inundaciones. La Directiva 2007/60/CE de Evaluación y Gestión de los Riesgos de Inundación y Real Decreto 903/2010, de 9 de julio, de evaluación y gestión de riesgos de inundación. Planes de Gestión del Riesgo de Inundación. Sequías. Planes especiales de alerta y eventual sequía. Estudios relativos a inundaciones y sequías. Prevención y control. Sistema automático de información hidrológica." },
-                { id: "A.1.4", text: "Cooperación internacional y participación pública. Principales convenios internacionales relacionados con la gestión de los recursos transfronterizos: Convenio de Albufeira, Convenio OSPAR, Convenio de Barcelona y Plan de Acción del Mediterráneo, Convenio RAMSAR, Acuerdo de Toulouse, Conferencia de Directores Iberoamericanos del Agua (CODIA), Convenio de Helsinki. Principales organismos internacionales relacionados con la gestión de los recursos hídricos." },
-                { id: "A.1.5", text: "Legislación de aguas en relación a la calidad del agua. La Directiva 91/271/CEE. El Real-Decreto Ley 11/1995, de 28 de diciembre y el Real Decreto 509/1996, de 15 de marzo. Las zonas sensibles: La Resolución de 25 de mayo de 1998. Vertidos. Declaración de vertidos. Autorizaciones de vertido. Procedimientos de infracción abiertos por la Comisión Europea al Reino de España por incumplimiento de la Directiva 91/271/CEE." },
-                { id: "A.1.6", text: "Las zonas húmedas. Inventario español de zonas húmedas. La delimitación de zonas húmedas. Mecanismos de protección y conservación de las zonas húmedas. Rehabilitación o restauración. Directivas de Hábitats y de Aves." },
-                { id: "A.1.7", text: "El régimen económico financiero de la Ley de Aguas. Canon de ocupación o utilización. El canon de control de vertidos. Canon de regulación y tarifa de utilización del agua. Distribución entre los beneficiarios. Canon por utilización de las aguas continentales para la producción de energía eléctrica." },
-                { id: "A.1.8", text: "Principios generales de la administración pública del agua. El Consejo Nacional del Agua. Los Organismos de cuenca: configuración y funciones. Atribuciones y cometidos. Órganos de gobierno, administración y cooperación. Comité de autoridades competentes de las Demarcaciones Hidrográficas intercomunitarias. Hacienda y patrimonio. Régimen jurídico de las comunidades de usuarios. Derechos y obligaciones. Reparto y distribución del agua." },
-                { id: "A.1.9", text: "Objetivos generales de la planificación hidrológica. La Ley de Aguas y sus Reglamentos en relación con la planificación hidrológica. Instrucción de planificación hidrológica. El proceso de planificación hidrológico, elaboración y contenido de los planes hidrológicos de demarcación. Programas de medidas de los planes hidrológicos. Criterios para la selección de las medidas. Financiación. Coordinación con otros Planes y Programas." },
-                { id: "A.1.10", text: "Evaluación de recursos existentes: recursos en régimen natural, recursos disponibles y recursos libres. Las demandas. La demanda medioambiental. Balances hidráulicos. Los sistemas de explotación de recursos: Modelos de optimización y simulación de recursos. Rasgos del balance hidráulico nacional." },
-                { id: "A.1.11", text: "Hidrología. Ciclo hidrológico Red Integrada de Estaciones de Aforos (SAIH-ROEA), el Sistema Automático de Información de Calidad de las Aguas (SAICA) y las redes de control de las aguas subterráneas. Los SIG y su aplicación a la gestión de los recursos hidráulicos. Orden TED/1191/2024, de 24 de octubre, por la que se regulan los sistemas electrónicos de control de los volúmenes de agua utilizados por los aprovechamientos de agua, los retornos y los vertidos al dominio público hidráulico." },
-                { id: "A.1.12", text: "Regulación. Garantía de la regulación. Criterios de garantía. Modelos matemáticos de regulación. Leyes de distribución de aportaciones." },
-                { id: "A.1.13", text: "Hidrología de las aguas subterráneas. Utilización y aprovechamiento de las aguas subterráneas: régimen de explotación. Masas de agua subterráneas en riesgo de no alcanzar el buen estado cuantitativo o químico. Técnicas de investigación hidrogeológica y evaluación de recursos." },
-                { id: "A.1.14", text: "Usos de agua en abastecimiento a poblaciones. Prognosis de la demanda de abastecimiento. Dotaciones. Pérdidas en la red de distribución. Captaciones de aguas superficiales y subterráneas: tipos. Perímetros de protección de captaciones." },
-                { id: "A.1.15", text: "Técnicas especiales e indirectas para incrementar la eficacia de los recursos del agua. Actuaciones sobre la oferta de recursos. Desalación de agua del mar y salobre; conceptos y requisitos. Reutilización de aguas residuales. Real Decreto 1085/2024, de 22 de octubre, por el que se aprueba el Reglamento de reutilización del agua y se modifican diversos reales decretos que regulan la gestión del agua. Prevención de evaporación de embalses. Actuaciones sobre la demanda: soluciones legales, técnicas y de gestión." },
-                { id: "A.1.16", text: "Condiciones de potabilidad del agua. Técnicas de potabilización, desalación y técnicas de tratamiento de aguas industriales. Pretratamientos y postratamientos necesarios. Obras de abastecimiento y saneamiento en general." },
-                { id: "A.1.17", text: "Depuración de aguas residuales. Control e índices de contaminación. Autodepuración en cursos naturales. Tecnología de la depuración físico-química: Pretratamiento y tratamientos primarios. Tecnología de eliminación biológica de nutrientes: Tratamientos secundarios. Tecnología del tratamiento terciario: filtración y esterilización. Tratamientos avanzados de eliminación de nutrientes: fósforo y nitrógeno." },
-                { id: "A.1.18", text: "Problemas de contaminación en relación con los efluentes industriales. Reutilización de efluentes industriales. Evaluación de la carga contaminante por sector industrial. Categorización del sector industrial. Características de los efluentes. Selección de parámetros contaminantes a efectos de establecimiento de niveles de emisión. Tecnologías disponibles para reducir la contaminación de efluentes: medidas internas y tratamiento de efluentes." },
-                { id: "A.1.19", text: "Uso del agua para regadío. El agua en la fisiología vegetal. Técnicas de aplicación del agua al terreno y obras de riego en general. Dotaciones, garantía y calidad del agua. Reutilización de caudales de riego. Los fertilizantes y los productos fitosanitarios como agentes contaminantes potenciales. La contaminación difusa. Problemas de salinidad. Gestión sostenible de regadíos. Plan Nacional de Regadíos." },
-                { id: "A.1.20", text: "Energía. Aprovechamientos hidráulicos convencionales. Centrales de acumulación o de bombeo y de usos múltiples. Obras civiles de carácter hidroeléctrico. Tecnologías energéticas, convencionales y renovables. Usos: generación eléctrica, aprovechamiento térmico y transporte." },
-                { id: "A.1.21", text: "Otros usos del agua. El agua en la industria. Evaluación de necesidades. Refrigeración de las centrales térmicas de combustión fósil y nuclear. Calor a disipar. Caudal de refrigeración y de dilución. Navegación fluvial. Usos recreativos." },
-                { id: "A.1.22", text: "Las obras hidráulicas. Concepto y naturaleza jurídica de las obras hidráulicas: competencias para la ejecución, gestión y explotación de las obras hidráulicas públicas. Obras hidráulicas de interés general, declaración de obras hidráulicas de interés general, prerrogativas de las obras hidráulicas de interés general. Coordinación de competencias concurrentes, declaración de utilidad pública y necesidad de ocupación. Régimen jurídico de las Sociedades Estatales de Aguas. Contrato de concesión de obras hidráulicas." },
-                { id: "A.1.23", text: "Presas: Generalidades. Avenidas y otros criterios de proyecto. Criterios generales de pre dimensionamiento. Clasificación tipológica de las presas." },
-                { id: "A.1.24", text: "Presas II: Presas de hormigón y de materiales sueltos: tipologías, elementos funcionales y materiales. Construcción de presas. Órganos de desagüe de la presa." },
-                { id: "A.1.25", text: "Normativa de seguridad de presas, embalses y balsas. Gestión de seguridad de las presas. Inventario de presas y embalses. Planes de emergencia y revisiones de seguridad de las presas." },
-                { id: "A.1.26", text: "Biodiversidad, conservación y restauración de ecosistemas fluviales y acuáticos. Indicadores. Caudales ecológicos. Eutrofización de las masas de agua. Infraestructuras verdes y soluciones basadas en la naturaleza en el medio hídrico." },
-                { id: "A.1.27", text: "Canales y conducciones en carga. Revestimientos, juntas y obras singulares. Redes de distribución de agua potable. Redes de saneamiento. Emisarios submarinos. Depósitos. Construcción, explotación y conservación." },
-                { id: "A.1.28", text: "Estaciones de bombeo. Conceptos básicos. Tipos de bombas: características, selección, transitorios. Protección y tipos de estaciones. Estaciones de sobrepresión. Elementos constructivos. Ingeniería de impulsiones: Trazado, tipos y cálculo." },
-                { id: "A.2.1", text: "Evolución de la Normativa de Costas. Leyes de Puertos de 1880 y 1928. Ley sobre costas de 1969. La Ley 22/1988, de 28 de julio, de Costas y la Ley 2/2013, de 29 de mayo, de protección y uso sostenible del litoral y de modificación de la Ley 22/1988, de Costas. Real Decreto 876/2014, de 10 de octubre, por el que se aprueba el Reglamento General de Costas." },
-                { id: "A.2.2", text: "Los bienes de dominio público marítimo-terrestre. Clasificación y definiciones. Prevalencia del dominio público marítimo-terrestre. Potestades de la Administración. El deslinde del dominio público marítimo-terrestre. Procedimiento. Estudios para la justificación del deslinde. Proyecto de deslinde. Efectos de la aprobación del deslinde. Inmatriculación de fincas colindantes con el dominio público marítimo-terrestre. Afectación y desafectación." },
-                { id: "A.2.3", text: "Limitaciones a la propiedad sobre los terrenos contiguos a la ribera del mar por razones de protección del dominio público marítimo-terrestre. Servidumbres de protección, tránsito y acceso al mar. Anchura y usos permitidos. La disposición transitoria tercera de la Ley 22/1988. Otras limitaciones a la propiedad. Zona de influencia." },
-                { id: "A.2.4", text: "Utilización del dominio público marítimo-terrestre. Disposiciones Generales. Proyectos y obras en el dominio público marítimo-terrestre. Estudios complementarios. Reservas, adscripciones, autorizaciones y concesiones." },
-                { id: "A.2.5", text: "El Régimen económico-financiero de la utilización del dominio público marítimo-terrestre. Cánones. Fianzas. Rescates. El Régimen sancionador en el dominio público marítimo-terrestre. Infracciones, sanciones y responsabilidad. Procedimientos y medios de ejecución." },
-                { id: "A.2.6", text: "Competencias de la Administración General del Estado según la Normativa de costas. Decretos de transferencias a las Comunidades Autónomas. Obras de interés general. Informes preceptivos y vinculantes. Competencias de las Comunidades Autónomas. Competencias Municipales." },
-                { id: "A.2.7", text: "Régimen Transitorio de la Ley 22/1988 y de la Ley 2/2013. La Disposición Transitoria Primera de la Ley 22/1988 y su desarrollo reglamentario. Los Fundamentos Jurídicos de la Sentencia del Tribunal Constitucional en relación con ella." },
-                { id: "A.2.8", text: "Las Autorizaciones en servidumbre de protección. Competencia. La declaración responsable. La disposición transitoria cuarta de la Ley 22/1988 y su desarrollo reglamentario. Autorización de nuevos usos y construcciones conforme a los instrumentos de ordenación: fachadas marítimas." },
-                { id: "A.2.9", text: "Biodiversidad y conservación de ecosistemas marinos y costeros. Las zonas húmedas y las zonas dunares costeras: definición y evolución en la normativa de costas. Las zonas de fanerógamas marinas. Importancia y tratamiento." },
-                { id: "A.2.10", text: "La gestión integral del litoral (GIZC). La GIZC como herramienta de la compatibilidad de usos y mecanismo de interacción entre Administraciones. La ordenación del espacio marítimo (OEM)." },
-                { id: "A.2.11", text: "Las distintas teorías de ondas. La propagación del oleaje. Los fenómenos de refracción, difracción, transmisión y reflexión del oleaje." },
-                { id: "A.2.12", text: "El transporte sólido litoral. Distintas formulaciones. Evolución de la línea de costa. Modelos. El perfil de playa. Distintas formulaciones teóricas. Variaciones del perfil. La profundidad del cierre." },
-                { id: "A.2.13", text: "Los efectos del cambio climático sobre las dinámicas oceánicas, el litoral, los ecosistemas y los recursos marinos. Factores de degradación del litoral. Adaptación de la costa a los efectos del cambio climático. Evaluación del riesgo de inundación en zonas costeras. Efectos del cambio climático sobre la inundación costera. Las infraestructuras costeras ante los impactos del cambio climático: análisis y diseño de medidas de adaptación. Huella de carbono de los proyectos en análisis de ciclo de vida. Principales medidas en infraestructuras para contribuir a la reducción de emisiones de gases de efecto invernadero." },
-                { id: "A.2.14", text: "Las estrategias marinas en España. El buen estado ambiental del medio marino. Programas de seguimiento y programas de medidas." },
-                { id: "A.2.15", text: "La erosión en los distintos tipos de playas. Causas de la erosión. Efectos de las infraestructuras litorales sobre las playas. Medidas correctoras y actuaciones. Efectos del cambio climático sobre la erosión costera." },
-                { id: "A.2.16", text: "Proyecto de playas artificiales. Formas de playa en planta. La espiral logarítmica y las soluciones parabólicas. La granulometría de la arena como condicionante del diseño. Aspectos ambientales de la regeneración de playas. Efectos sobre las comunidades pelágicas y bentónicas." },
-                { id: "A.2.17", text: "Las fuentes naturales de sedimentos. Las zonas de préstamo para alimentación artificial. Aspectos ambientales de la extracción de materiales del fondo marino. Directrices para la caracterización del material dragado y su reubicación en aguas del dominio público marítimo-terrestre. Métodos de prospección submarina." },
-                { id: "A.2.18", text: "El puerto: Aspectos generales y físicos. Objetivos y funciones. El sistema portuario español. Real Decreto Legislativo 2/2011, de 5 de septiembre, por el que se aprueba el texto refundido de la Ley de Puertos del Estado y de la Marina Mercante. Financiación de puertos. Modelos de gestión. Planificación portuaria. Fundamentos y planes. Previsiones de tráfico. Estudio de capacidad. Ordenación de terminales." },
-                { id: "A.2.19", text: "Obras de abrigo y portuarias (1). Definición y caracterización de la situación y factores de proyecto. Carácter de las obras. Estados límite últimos. Períodos de retorno. Bases de datos. Clima marítimo: Caracterización estadística del oleaje. Análisis estadístico del oleaje en aguas profundas y poco profundas: Régimen extremal y régimen medio." },
-                { id: "A.2.20", text: "Obras de abrigo y portuarias (II). Diseños y dimensionamiento. Diseño en planta. Obras exteriores: diques verticales, diques en talud, diques rebasables. Obras interiores: muelles, dársenas, amarres, fondeo. Superficies portuarias. Profundidades accesorias, maniobrabilidad de buques." }
+            "aguas": { name: "Aguas y Costas", color: 0x0891b2, topics: [ 
+                { id: "A.1.1", text: "Marco normativo en materia de aguas en España. Elementos que regula el texto refundido de la Ley de Aguas. Organización de la Administración Hidráulica en España. Reglamento del Dominio Público Hidráulico. Dominio Público Hidráulico: aguas públicas y privadas. Utilización del Dominio Público Hidráulico: servidumbres, usos comunes y privativos, concesiones y autorizaciones, registro de aguas y régimen jurídico de las comunidades de usuarios. Reconocimiento de derechos anteriores a 1986. Protección del Dominio Público Hidráulico y de la calidad de las aguas continentales: zonas de servidumbre y de policía, apeo y deslinde; vertidos; reutilización. Régimen económico-financiero de la utilización del dominio público hidráulico. Infracciones y sanciones. Contrato de cesión de derechos al uso privativo de las aguas públicas. Seguridad de presas, embalses y balsas." }, 
+                { id: "A.1.2", text: "Directiva 2000/60/CE Marco del Agua y directivas relacionadas. Objetivos medioambientales. Tipos de masas de agua, caracterización de masas de agua, presiones e impactos. Estado ecológico, potencial ecológico y designación de masas artificiales y muy modificadas. Real Decreto 817/2015, de 11 de septiembre, por el que se establecen los criterios de seguimiento y evaluación del estado de las aguas superficiales y las normas de calidad ambiental. Reglamento de planificación hidrológica. Marco normativo de los Planes hidrológicos. Características de la demarcación hidrográfica. Recuperación de costes. Programa de medidas." }, 
+                { id: "A.1.3", text: "Avenidas e inundaciones. La Directiva 2007/60/CE de Evaluación y Gestión de los Riesgos de Inundación y Real Decreto 903/2010, de 9 de julio, de evaluación y gestión de riesgos de inundación. Planes de Gestión del Riesgo de Inundación. Sequías. Planes especiales de alerta y eventual sequía. Estudios relativos a inundaciones y sequías. Prevención y control. Sistema automático de información hidrológica." }, 
+                { id: "A.1.4", text: "Cooperación internacional y participación pública. Principales convenios internacionales relacionados con la gestión de los recursos transfronterizos: Convenio de Albufeira, Convenio OSPAR, Convenio de Barcelona y Plan de Acción del Mediterráneo, Convenio RAMSAR, Acuerdo de Toulouse, Conferencia de Directores Iberoamericanos del Agua (CODIA), Convenio de Helsinki. Principales organismos internacionales relacionados con la gestión de los recursos hídricos." }, 
+                { id: "A.1.5", text: "Legislación de aguas en relación a la calidad del agua. La Directiva 91/271/CEE. El Real-Decreto Ley 11/1995, de 28 de diciembre y el Real Decreto 509/1996, de 15 de marzo. Las zonas sensibles: La Resolución de 25 de mayo de 1998. Vertidos. Declaración de vertidos. Autorizaciones de vertido. Procedimientos de infracción abiertos por la Comisión Europea al Reino de España por incumplimiento de la Directiva 91/271/CEE." }, 
+                { id: "A.1.6", text: "Las zonas húmedas. Inventario español de zonas húmedas. La delimitación de zonas húmedas. Mecanismos de protección y conservación de las zonas húmedas. Rehabilitación o restauración. Directivas de Hábitats y de Aves." }, 
+                { id: "A.1.7", text: "El régimen económico financiero de la Ley de Aguas. Canon de ocupación o utilización. El canon de control de vertidos. Canon de regulación y tarifa de utilización del agua. Distribución entre los beneficiarios. Canon por utilización de las aguas continentales para la producción de energía eléctrica." }, 
+                { id: "A.1.8", text: "Principios generales de la administración pública del agua. El Consejo Nacional del Agua. Los Organismos de cuenca: configuración y funciones. Atribuciones y cometidos. Órganos de gobierno, administración y cooperación. Comité de autoridades competentes de las Demarcaciones Hidrográficas intercomunitarias. Hacienda y patrimonio. Régimen jurídico de las comunidades de usuarios. Derechos y obligaciones. Reparto y distribución del agua." }, 
+                { id: "A.1.9", text: "Objetivos generales de la planificación hidrológica. La Ley de Aguas y sus Reglamentos en relación con la planificación hidrológica. Instrucción de planificación hidrológica. El proceso de planificación hidrológico, elaboración y contenido de los planes hidrológicos de demarcación. Programas de medidas de los planes hidrológicos. Criterios para la selección de las medidas. Financiación. Coordinación con otros Planes y Programas." }, 
+                { id: "A.1.10", text: "Evaluación de recursos existentes: recursos en régimen natural, recursos disponibles y recursos libres. Las demandas. La demanda medioambiental. Balances hidráulicos. Los sistemas de explotación de recursos: Modelos de optimización y simulación de recursos. Rasgos del balance hidráulico nacional." }, 
+                { id: "A.1.11", text: "Hidrología. Ciclo hidrológico Red Integrada de Estaciones de Aforos (SAIH-ROEA), el Sistema Automático de Información de Calidad de las Aguas (SAICA) y las redes de control de las aguas subterráneas. Los SIG y su aplicación a la gestión de los recursos hidráulicos. Orden TED/1191/2024, de 24 de octubre, por la que se regulan los sistemas electrónicos de control de los volúmenes de agua utilizados por los aprovechamientos de agua, los retornos y los vertidos al dominio público hidráulico." }, 
+                { id: "A.1.12", text: "Regulación. Garantía de la regulación. Criterios de garantía. Modelos matemáticos de regulación. Leyes de distribución de aportaciones." }, 
+                { id: "A.1.13", text: "Hidrología de las aguas subterráneas. Utilización y aprovechamiento de las aguas subterráneas: régimen de explotación. Masas de agua subterráneas en riesgo de no alcanzar el buen estado cuantitativo o químico. Técnicas de investigación hidrogeológica y evaluación de recursos." }, 
+                { id: "A.1.14", text: "Usos de agua en abastecimiento a poblaciones. Prognosis de la demanda de abastecimiento. Dotaciones. Pérdidas en la red de distribución. Captaciones de aguas superficiales y subterráneas: tipos. Perímetros de protección de captaciones." }, 
+                { id: "A.1.15", text: "Técnicas especiales e indirectas para incrementar la eficacia de los recursos del agua. Actuaciones sobre la oferta de recursos. Desalación de agua del mar y salobre; conceptos y requisitos. Reutilización de aguas residuales. Real Decreto 1085/2024, de 22 de octubre, por el que se aprueba el Reglamento de reutilización del agua y se modifican diversos reales decretos que regulan la gestión del agua. Prevención de evaporación de embalses. Actuaciones sobre la demanda: soluciones legales, técnicas y de gestión." }, 
+                { id: "A.1.16", text: "Condiciones de potabilidad del agua. Técnicas de potabilización, desalación y técnicas de tratamiento de aguas industriales. Pretratamientos y postratamientos necesarios. Obras de abastecimiento y saneamiento en general." }, 
+                { id: "A.1.17", text: "Depuración de aguas residuales. Control e índices de contaminación. Autodepuración en cursos naturales. Tecnología de la depuración físico-química: Pretratamiento y tratamientos primarios. Tecnología de eliminación biológica de nutrientes: Tratamientos secundarios. Tecnología del tratamiento terciario: filtración y esterilización. Tratamientos avanzados de eliminación de nutrientes: fósforo y nitrógeno." }, 
+                { id: "A.1.18", text: "Problemas de contaminación en relación con los efluentes industriales. Reutilización de efluentes industriales. Evaluación de la carga contaminante por sector industrial. Categorización del sector industrial. Características de los efluentes. Selección de parámetros contaminantes a efectos de establecimiento de niveles de emisión. Tecnologías disponibles para reducir la contaminación de efluentes: medidas internas y tratamiento de efluentes." }, 
+                { id: "A.1.19", text: "Uso del agua para regadío. El agua en la fisiología vegetal. Técnicas de aplicación del agua al terreno y obras de riego en general. Dotaciones, garantía y calidad del agua. Reutilización de caudales de riego. Los fertilizantes y los productos fitosanitarios como agentes contaminantes potenciales. La contaminación difusa. Problemas de salinidad. Gestión sostenible de regadíos. Plan Nacional de Regadíos." }, 
+                { id: "A.1.20", text: "Energía. Aprovechamientos hidráulicos convencionales. Centrales de acumulación o de bombeo y de usos múltiples. Obras civiles de carácter hidroeléctrico. Tecnologías energéticas, convencionales y renovables. Usos: generación eléctrica, aprovechamiento térmico y transporte." }, 
+                { id: "A.1.21", text: "Otros usos del agua. El agua en la industria. Evaluación de necesidades. Refrigeración de las centrales térmicas de combustión fósil y nuclear. Calor a disipar. Caudal de refrigeración y de dilución. Navegación fluvial. Usos recreativos." }, 
+                { id: "A.1.22", text: "Las obras hidráulicas. Concepto y naturaleza jurídica de las obras hidráulicas: competencias para la ejecución, gestión y explotación de las obras hidráulicas públicas. Obras hidráulicas de interés general, declaración de obras hidráulicas de interés general, prerrogativas de las obras hidráulicas de interés general. Coordinación de competencias concurrentes, declaración de utilidad pública y necesidad de ocupación. Régimen jurídico de las Sociedades Estatales de Aguas. Contrato de concesión de obras hidráulicas." }, 
+                { id: "A.1.23", text: "Presas: Generalidades. Avenidas y otros criterios de proyecto. Criterios generales de pre dimensionamiento. Clasificación tipológica de las presas." }, 
+                { id: "A.1.24", text: "Presas II: Presas de hormigón y de materiales sueltos: tipologías, elementos funcionales y materiales. Construcción de presas. Órganos de desagüe de la presa." }, 
+                { id: "A.1.25", text: "Normativa de seguridad de presas, embalses y balsas. Gestión de seguridad de las presas. Inventario de presas y embalses. Planes de emergencia y revisiones de seguridad de las presas." }, 
+                { id: "A.1.26", text: "Biodiversidad, conservación y restauración de ecosistemas fluviales y acuáticos. Indicadores. Caudales ecológicos. Eutrofización de las masas de agua. Infraestructuras verdes y soluciones basadas en la naturaleza en el medio hídrico." }, 
+                { id: "A.1.27", text: "Canales y conducciones en carga. Revestimientos, juntas y obras singulares. Redes de distribución de agua potable. Redes de saneamiento. Emisarios submarinos. Depósitos. Construcción, explotación y conservación." }, 
+                { id: "A.1.28", text: "Estaciones de bombeo. Conceptos básicos. Tipos de bombas: características, selección, transitorios. Protección y tipos de estaciones. Estaciones de sobrepresión. Elementos constructivos. Ingeniería de impulsiones: Trazado, tipos y cálculo." }, 
+                { id: "A.2.1", text: "Evolución de la Normativa de Costas. Leyes de Puertos de 1880 y 1928. Ley sobre costas de 1969. La Ley 22/1988, de 28 de julio, de Costas y la Ley 2/2013, de 29 de mayo, de protección y uso sostenible del litoral y de modificación de la Ley 22/1988, de Costas. Real Decreto 876/2014, de 10 de octubre, por el que se aprueba el Reglamento General de Costas." }, 
+                { id: "A.2.2", text: "Los bienes de dominio público marítimo-terrestre. Clasificación y definiciones. Prevalencia del dominio público marítimo-terrestre. Potestades de la Administración. El deslinde del dominio público marítimo-terrestre. Procedimiento. Estudios para la justificación del deslinde. Proyecto de deslinde. Efectos de la aprobación del deslinde. Inmatriculación de fincas colindantes con el dominio público marítimo-terrestre. Afectación y desafectación." }, 
+                { id: "A.2.3", text: "Limitaciones a la propiedad sobre los terrenos contiguos a la ribera del mar por razones de protección del dominio público marítimo-terrestre. Servidumbres de protección, tránsito y acceso al mar. Anchura y usos permitidos. La disposición transitoria tercera de la Ley 22/1988. Otras limitaciones a la propiedad. Zona de influencia." }, 
+                { id: "A.2.4", text: "Utilización del dominio público marítimo-terrestre. Disposiciones Generales. Proyectos y obras en el dominio público marítimo-terrestre. Estudios complementarios. Reservas, adscripciones, autorizaciones y concesiones." }, 
+                { id: "A.2.5", text: "El Régimen económico-financiero de la utilización del dominio público marítimo-terrestre. Cánones. Fianzas. Rescates. El Régimen sancionador en el dominio público marítimo-terrestre. Infracciones, sanciones y responsabilidad. Procedimientos y medios de ejecución." }, 
+                { id: "A.2.6", text: "Competencias de la Administración General del Estado según la Normativa de costas. Decretos de transferencias a las Comunidades Autónomas. Obras de interés general. Informes preceptivos y vinculantes. Competencias de las Comunidades Autónomas. Competencias Municipales." }, 
+                { id: "A.2.7", text: "Régimen Transitorio de la Ley 22/1988 y de la Ley 2/2013. La Disposición Transitoria Primera de la Ley 22/1988 y su desarrollo reglamentario. Los Fundamentos Jurídicos de la Sentencia del Tribunal Constitucional en relación con ella." }, 
+                { id: "A.2.8", text: "Las Autorizaciones en servidumbre de protección. Competencia. La declaración responsable. La disposición transitoria cuarta de la Ley 22/1988 y su desarrollo reglamentario. Autorización de nuevos usos y construcciones conforme a los instrumentos de ordenación: fachadas marítimas." }, 
+                { id: "A.2.9", text: "Biodiversidad y conservación de ecosistemas marinos y costeros. Las zonas húmedas y las zonas dunares costeras: definición y evolución en la normativa de costas. Las zonas de fanerógamas marinas. Importancia y tratamiento." }, 
+                { id: "A.2.10", text: "La gestión integral del litoral (GIZC). La GIZC como herramienta de la compatibilidad de usos y mecanismo de interacción entre Administraciones. La ordenación del espacio marítimo (OEM)." }, 
+                { id: "A.2.11", text: "Las distintas teorías de ondas. La propagación del oleaje. Los fenómenos de refracción, difracción, transmisión y reflexión del oleaje." }, 
+                { id: "A.2.12", text: "El transporte sólido litoral. Distintas formulaciones. Evolución de la línea de costa. Modelos. El perfil de playa. Distintas formulaciones teóricas. Variaciones del perfil. La profundidad del cierre." }, 
+                { id: "A.2.13", text: "Los efectos del cambio climático sobre las dinámicas oceánicas, el litoral, los ecosistemas y los recursos marinos. Factores de degradación del litoral. Adaptación de la costa a los efectos del cambio climático. Evaluación del riesgo de inundación en zonas costeras. Efectos del cambio climático sobre la inundación costera. Las infraestructuras costeras ante los impactos del cambio climático: análisis y diseño de medidas de adaptación. Huella de carbono de los proyectos en análisis de ciclo de vida. Principales medidas en infraestructuras para contribuir a la reducción de emisiones de gases de efecto invernadero." }, 
+                { id: "A.2.14", text: "Las estrategias marinas en España. El buen estado ambiental del medio marino. Programas de seguimiento y programas de medidas." }, 
+                { id: "A.2.15", text: "La erosión en los distintos tipos de playas. Causas de la erosión. Efectos de las infraestructuras litorales sobre las playas. Medidas correctoras y actuaciones. Efectos del cambio climático sobre la erosión costera." }, 
+                { id: "A.2.16", text: "Proyecto de playas artificiales. Formas de playa en planta. La espiral logarítmica y las soluciones parabólicas. La granulometría de la arena como condicionante del diseño. Aspectos ambientales de la regeneración de playas. Efectos sobre las comunidades pelágicas y bentónicas." }, 
+                { id: "A.2.17", text: "Las fuentes naturales de sedimentos. Las zonas de préstamo para alimentación artificial. Aspectos ambientales de la extracción de materiales del fondo marino. Directrices para la caracterización del material dragado y su reubicación en aguas del dominio público marítimo-terrestre. Métodos de prospección submarina." }, 
+                { id: "A.2.18", text: "El puerto: Aspectos generales y físicos. Objetivos y funciones. El sistema portuario español. Real Decreto Legislativo 2/2011, de 5 de septiembre, por el que se aprueba el texto refundido de la Ley de Puertos del Estado y de la Marina Mercante. Financiación de puertos. Modelos de gestión. Planificación portuaria. Fundamentos y planes. Previsiones de tráfico. Estudio de capacidad. Ordenación de terminales." }, 
+                { id: "A.2.19", text: "Obras de abrigo y portuarias (1). Definición y caracterización de la situación y factores de proyecto. Carácter de las obras. Estados límite últimos. Períodos de retorno. Bases de datos. Clima marítimo: Caracterización estadística del oleaje. Análisis estadístico del oleaje en aguas profundas y poco profundas: Régimen extremal y régimen medio." }, 
+                { id: "A.2.20", text: "Obras de abrigo y portuarias (II). Diseños y dimensionamiento. Diseño en planta. Obras exteriores: diques verticales, diques en talud, diques rebasables. Obras interiores: muelles, dársenas, amarres, fondeo. Superficies portuarias. Profundidades accesorias, maniobrabilidad de buques." } 
+            ]}, 
+            "carreteras": { name: "Carreteras y Ferrocarriles", color: 0xd97706, topics: [ 
+                { id: "B.1.1", text: "La legislación de carreteras. Ley 37/2015, de 29 de septiembre, de carreteras. Reglamento General de Carreteras. Funciones y estructura de la Dirección General de Carreteras. Catálogo de la Red de Carreteras del Estado." }, 
+                { id: "B.1.2", text: "La planificación estratégica de carreteras del Estado y los programas de carreteras. Evaluación coste-beneficio, análisis multicriterio y viabilidad financiera. Estudios informativos y anteproyectos. Nota de Servicio 3/2014 sobre prescripciones y recomendaciones técnicas relativas a los contenidos mínimos a incluir en los estudios de rentabilidad de los estudios informativos o anteproyectos. Criterios aplicables a carreteras de la Orden FOM/3317/2010 por la que se aprueba la instrucción sobre las medidas específicas para la mejora de la eficiencia en la ejecución de las obras públicas de infraestructuras ferroviarias, carreteras y aeropuertos del Ministerio de Transportes, Movilidad y Agenda Urbana." }, 
+                { id: "B.1.3", text: "Estudios de carreteras (1): cartografía y topografía. Estudios geológicos, geotécnicos y de procedencia de materiales. Estudios climatológicos e hidrológicos. Normativa sísmica." }, 
+                { id: "B.1.4", text: "Estudios de carreteras (II): estudios de tráfico. Toma de datos: sistemas convencionales y nuevas tecnologías. Modelización del tráfico. Prognosis de tráfico. Plan de aforos. Mapas de tráfico del Ministerio de Transportes, Movilidad y Agenda Urbana." }, 
+                { id: "B.1.5", text: "Trazado de carreteras: norma 3.1-IC de trazado. Trazado en planta. Trazado en alzado. Sección transversal. Nudos, enlaces e intersecciones. Orden Circular 1/2021 sobre recomendaciones para el diseño de carreteras 2+1 y carriles adicionales de adelantamiento." }, 
+                { id: "B.1.6", text: "Drenaje superficial y subterráneo. Norma 5.2-IC de drenaje superficial. Orden Circular 17/2003 de recomendaciones para el proyecto y construcción del drenaje subterráneo en obras de carretera." }, 
+                { id: "B.1.7", text: "Movimiento de tierras: clasificación y características de los suelos según el PG-3. Construcción de terraplenes, pedraplenes y rellenos todo uno. Compactación. Ejecución de excavaciones: estabilidad de taludes. Protección de la infraestructura frente a la caída de materiales. Técnicas de mejora del terreno. Cimentaciones de estructuras: tipologías y métodos constructivos." }, 
+                { id: "B.1.8", text: "Firmes (1): conceptos generales. La explanada: capacidad de soporte y materiales. Materiales de los firmes: zahorras, suelocemento, gravacemento y mezclas bituminosas. Clasificaciones de las mezclas bituminosas. Pavimentos de hormigón. Norma 6.1-IC de secciones de firme." }, 
+                { id: "B.1.9", text: "Firmes (II): características superficiales y estructurales de los firmes. Auscultación de firmes. Estrategias de conservación de los firmes. Rehabilitación de firmes: norma 6.3-IC. Orden Circular 40/2017: reciclado in situ con emulsión de capas bituminosas, reciclado in situ con cemento de capas de firme, reciclado en caliente y semicaliente en central de capas bituminosas (RAP). Transformación de firmes rígidos degradados en firmes mixtos. Consideraciones ambientales: carencia de materiales y huella energética." }, 
+                { id: "B.1.10", text: "Obras de paso: tipologías y materiales. Métodos constructivos y medios auxiliares. Conservación e inspección de obras de paso. Patologías de degradación. Rehabilitación de las obras de paso. Normativa aplicable. Aspectos principales del Real Decreto 470/2021 por el que se aprueba el Código Estructural. Monitorización en tiempo real de estructuras y taludes." }, 
+                { id: "B.1.11", text: "Túneles en carreteras (1): métodos constructivos. Maquinaria y medios auxiliares. Sostenimiento. Revestimiento. Equipamiento e instalaciones en los túneles. Real Decreto 635/2006 sobre requisitos mínimos de seguridad en los túneles de carreteras del Estado." }, 
+                { id: "B.1.12", text: "Túneles de carreteras (II): mantenimiento de túneles de carreteras. Plan de adecuación de túneles al Real Decreto 635/2006. Metodología de análisis de riesgo en túneles de la RCE. Orden Circular 27/2008 sobre metodología de inspección de túneles. Orden Circular 33/2013 sobre el manual de explotación de los túneles de la RCE." }, 
+                { id: "B.1.13", text: "Señalización: norma 8.1-IC de señalización vertical. Norma 8.2- IC de marcas viales. Sistema de señalización turística homologada en carreteras estatales (SISTHO). Balizamiento. Sistemas de contención: Orden Circular 35/2014 sobre criterios de aplicación de sistemas de contención de vehículos." }, 
+                { id: "B.1.14", text: "Pliego de prescripciones técnicas generales para obras de carreteras y puentes (PG-3). El Reglamento UE 305/2011 de productos de la construcción. El marcado CE. Los Eurocódigos." }, 
+                { id: "B.1.15", text: "Proyecto de trazado. Trámite de información pública. Proyecto de construcción. Documentos del proyecto de construcción: memoria y anejos, pliego de prescripciones técnicas particulares, mediciones y presupuestos. Dirección del proyecto. Supervisión y aprobación del proyecto. Principios de la metodología BIM aplicados a los proyectos de carreteras." }, 
+                { id: "B.1.16", text: "Construcción de carreteras (1): dirección de obras de carreteras. Plan de obra. Organización de las obras. Aseguramiento de la calidad. Plan de seguridad y salud. Plan de vigilancia medioambiental. Servicios afectados." }, 
+                { id: "B.1.17", text: "Construcción de carreteras (II): incidencias en las obras. Certificaciones de obras y relaciones valoradas. La certificación final y liquidación. Garantía de las obras y vicios ocultos." }, 
+                { id: "B.1.18", text: "La gestión de la Red de Carreteras del Estado: sistemas de gestión directos e indirectos. Concesiones de carreteras del Estado: autopistas de peaje y autovías en régimen de concesión. Actuaciones preparatorias de los contratos de concesión: el estudio de viabilidad. Inspección de concesiones. La Delegación del Gobierno en las sociedades concesionarias de autopistas nacionales de peaje. La gestión a través de la Sociedad Estatal de Infraestructuras del Transporte Terrestre, S.M.E., SA." }, 
+                { id: "B.1.19", text: "Conservación de carreteras (1): contratos de conservación y explotación empleados en la Red de Carreteras del Estado. Vialidad invernal. Inspecciones de elementos y sistemas de gestión. Nota de Servicio 2/2021: seguridad en las actividades de conservación. Nota de Servicio 1/2022: recomendaciones para mejorar la sostenibilidad en los centros de conservación y explotación." }, 
+                { id: "B.1.20", text: "Conservación de carreteras (II): proyectos y obras de conservación extraordinaria. Normativa específica de conservación y particularidades de la normativa genérica aplicables. Nota de Servicio 1/2019. Obras de emergencia. Orden Circular 36/2015, sobre criterios a aplicar en la iluminación de carreteras a cielo abierto y túneles." }, 
+                { id: "B.1.21", text: "Explotación de carreteras (1): protección del dominio público viario y limitaciones a la propiedad: zonas de dominio público, servidumbre y afección. Zona de limitación a la edificabilidad. Publicidad. Procedimiento de autorizaciones. Informes vinculantes a instrumentos de planeamiento urbanístico y ordenación territorial. Aplicación del Real Decreto Legislativo 7/2015, de 30 de octubre, por el que se aprueba el texto refundido de la Ley de Suelo y Rehabilitación Urbana, en materia de explotación de carreteras. Régimen sancionador." }, 
+                { id: "B.1.22", text: "Explotación de carreteras (II): transportes especiales. Nota de Servicio 1/2018. Áreas de servicio y estaciones de servicio. Aparcamientos seguros. Accesos a la Red de Carreteras del Estado: normativa aplicable. Travesías y tramos urbanos. Estudios de delimitación de tramos urbanos. Cesión de tramos. Orden TMA/1160/2021, de cesión de tramos a Ayuntamientos. Gestión y seguimiento en materia de ruido: aplicación de la Ley 37/2003 de ruido a la Red de Carreteras del Estado. Mapas de ruido y planes de acción." }, 
+                { id: "B.1.23", text: "Innovación aplicada a la movilidad por carretera: sistemas inteligentes de transporte cooperativos (C-ITS): experiencias piloto. Vehículo autónomo y conectado. Carreteras inteligentes. Tecnologías aplicables para la tarificación de las carreteras. Digitalización de la Red de Carreteras del Estado." }, 
+                { id: "B.1.24", text: "Seguridad vial: indicadores de seguridad vial. Últimas cifras y evolución de los principales indicadores. Aspectos de la infraestructura que más incidencia tienen sobre la seguridad vial. Real Decreto 345/2011 sobre gestión de la seguridad de las infraestructuras viarias en la Red de Carreteras del Estado y su desarrollo en la Orden Circular 30/2012 y Orden Circular 39/2017." }, 
+                { id: "B.2.1", text: "La infraestructura ferroviaria dentro de la Ley 38/2015, de 29 de septiembre, del Sector Ferroviario, y el Real Decreto 2387/2004, de 30 de diciembre, por el que se aprueba el Reglamento del Sector Ferroviario (I). La Red Ferroviaria de Interés General. La planificación, proyecto y construcción de sus infraestructuras. La Estrategia Indicativa. Estudios y proyectos: tipos, contenido y tramitación. La construcción y puesta en servicio. Incidencia sobre el planeamiento urbanístico." }, 
+                { id: "B.2.2", text: "La infraestructura ferroviaria dentro de la Ley 38/2015, de 29 de septiembre, del Sector Ferroviario, y el Real Decreto 2387/2004, de 30 de diciembre, por el que se aprueba el Reglamento del Sector Ferroviario (II). Los administradores de infraestructuras ferroviarias. Funciones, naturaleza, recursos, y patrimonio. Declaración de Red. Adjudicación de capacidad. Prestación de servicios." }, 
+                { id: "B.2.3", text: "La infraestructura ferroviaria dentro de la Ley 38/2015, de 29 de septiembre, del Sector Ferroviario, y el Real Decreto 2387/2004, de 30 de diciembre, por el que se aprueba el Reglamento del Sector Ferroviario (III). Zonas de servicio. Limitaciones a la propiedad. Infraestructuras ferroviarias en puertos y aeropuertos. Infraestructuras ferroviarias privadas." }, 
+                { id: "B.2.4", text: "El transporte ferroviario dentro de la Ley 38/2015, de 29 de septiembre, del Sector Ferroviario, y el Real Decreto 2387/2004, de 30 de diciembre, por el que se aprueba el Reglamento del Sector Ferroviario. Actores del sistema ferroviario nacional y europeo. Administradores de infraestructura y empresas ferroviarias. Concepto de empresa ferroviaria, obtención de licencias de empresas ferroviarias. Los cánones y tarifas." }, 
+                { id: "B.2.5", text: "Infraestructura ferroviaria: trazado y geometría. Definición de los parámetros básicos en planta y alzado. Valores recomendados y límite. Secciones transversales. Gálibos. Entre-eje. Criterios en infraestructuras ferroviarias de la Orden FOM/3317/2010, de 17 de diciembre, por la que se aprueba la Instrucción sobre las medidas específicas para la mejora de la eficiencia en la ejecución de las obras públicas de infraestructuras ferroviarias, carreteras y aeropuertos del Ministerio de Fomento." }, 
+                { id: "B.2.6", text: "Las capas de asiento ferroviario. Plataforma: capas constitutivas, características de los materiales. El balasto: funciones y características de los materiales. Dimensionamiento." }, 
+                { id: "B.2.7", text: "La vía y sus elementos constitutivos. Tipología y materiales. Aparatos de vía. La vía en placa. El ancho de vía en España. Problemática de la coexistencia de varios anchos y alternativas técnicas para su solución. Cambiadores de ancho. La vía de tres hilos, principales elementos y su problemática." }, 
+                { id: "B.2.8", text: "Túneles de ferrocarril. Normativa técnica, secciones, métodos constructivos, efectos aerodinámicos y seguridad. Estructuras ferroviarias: Instrucción sobre las acciones a considerar en el proyecto de puentes de ferrocarril (IAPF). Singularidad de los efectos dinámicos." }, 
+                { id: "B.2.9", text: "Conceptos básicos de la ejecución de obras ferroviarias. Procedimientos constructivos, condicionantes y maquinaria. El mantenimiento de la red. Operaciones de auscultación de la vía en servicio. Mantenimiento preventivo y correctivo. Plan de contingencias. Renovaciones y otras operaciones, procedimientos constructivos. Inspecciones técnicas en los puentes de ferrocarril." }, 
+                { id: "B.2.10", text: "Pasos a nivel. Marco legal. Definición y clasificación. Tipología de protecciones. Alternativas de supresión. Procedimientos constructivos singulares. Otros cruces a nivel y cruces entre andenes." }, 
+                { id: "B.2.11", text: "Instalaciones de servicio ferroviarias. Tipologías: viajeros, mercancías y técnicas. Necesidades funcionales ferroviarias. Condicionantes de diseño y dimensionamiento. Andenes. Accesibilidad. Autopistas ferroviarias." }, 
+                { id: "B.2.12", text: "Electrificación ferroviaria. Sistemas de sustentación. Tipologías de catenarias. Tensiones de funcionamiento. Otros sistemas de alimentación. Normativa de aplicación." }, 
+                { id: "B.2.13", text: "Señalización e instalaciones de seguridad ferroviaria. Conceptos generales. Sistemas tradicionales clase B y nuevas tendencias: el ERTMS. Normativa de aplicación Explotación ferroviaria: estudios de capacidad y de demanda y sistemas de gestión de capacidad." }, 
+                { id: "B.2.14", text: "Las infraestructuras ferroviarias en el entorno urbano. Problemática. Alternativas para su integración. Sistemas de financiación en colaboración con otras administraciones." }, 
+                { id: "B.2.15", text: "La seguridad ferroviaria en la Directiva 2016/798/UE de seguridad y en el Real Decreto 929/2020, de 27 de octubre de seguridad operacional e interoperabilidad ferroviarias (I). Desarrollo y gestión de la seguridad ferroviaria. Funciones de los agentes del sistema ferroviario. Objetivos comunes de seguridad. Métodos comunes de seguridad. Sistemas de gestión de la seguridad." }, 
+                { id: "B.2.16", text: "La seguridad ferroviaria en la Directiva 2016/798/UE de seguridad y en el Real Decreto 929/2020, de 27 de octubre de seguridad operacional e interoperabilidad ferroviarias (II). Certificados y autorizaciones de seguridad. Evaluación y supervisión. La Agencia Estatal de Seguridad Ferroviaria. La Autoridad Administrativa Independiente para la Investigación Técnica de Accidentes e Incidentes ferroviarios, marítimos y de aviación civil. La Agencia Ferroviaria de la Unión Europea." }, 
+                { id: "B.2.17", text: "La interoperabilidad ferroviaria en la Directiva 2016/797/UE de interoperabilidad y en el Real Decreto 929/2020, de 27 de octubre de seguridad operacional e interoperabilidad ferroviarias (I). Especificaciones técnicas de interoperabilidad (ETIS) y normas nacionales (Instrucciones ferroviarias). Componentes de interoperabilidad. Subsistemas estructurales y funcionales. Organismos notificados." }, 
+                { id: "B.2.18", text: "La interoperabilidad ferroviaria en la Directiva 2016/797/UE de interoperabilidad y en el Real Decreto 929/2020, de 27 de octubre de seguridad operacional e interoperabilidad ferroviarias (II). Entrada en servicio de subsistemas estructurales fijos y de puesta en servicio de líneas, tramos, estaciones y terminales." }, 
+                { id: "B.2.19", text: "Personal ferroviario. Conceptos generales de la Orden FOM/2872/2010, de 5 de noviembre: categorías de personal con actividades relacionadas con la seguridad, licencias y certificados de maquinistas, centros de formación y centros de reconocimiento médico. Conceptos generales de la ETI OPE en relación con el personal ferroviario." }, 
+                { id: "B.2.20", text: "Material rodante ferroviario. Entrada en servicio de vehículos. Mantenimiento de vehículos y organismos responsables: entidades encargadas de mantenimiento y centros de mantenimiento. Normativa básica." }, 
+                { id: "B.2.21", text: "Conceptos básicos de normativa de circulación ferroviaria: la Especificación Técnica de Interoperabilidad de Explotación y Gestión del tráfico (ETI OPE) y el Reglamento de Circulación Ferroviaria (Real Decreto 664/2015, de 17 de julio)." }, 
+                { id: "B.2.22", text: "La gestión de la seguridad operacional en los cambios en el sistema ferroviario: El Reglamento UE 402/2013 relativo a la adopción de un método común de seguridad para la evaluación y valoración del riesgo. Concepto de cambio significativo. Fases del proceso de gestión del riesgo: definición del sistema, identificación de amenazas, análisis del riesgo, registro de amenazas, funciones del evaluador independiente, informe del evaluador independiente. Declaración del proponente. Integración Segura." } 
+            ]}, 
+            "transportes": { name: "Transportes y MA", color: 0x65a30d, topics: [ 
+                { id: "C.1.1", text: "Transporte y movilidad en España (I). Movilidad interior y movilidad exterior de viajeros y mercancías. Repartos modales, principales magnitudes y evolución. Comparación con otros países de la Unión Europea. Relación entre movilidad y actividad económica. El transporte y la industria del turismo." }, 
+                { id: "C.1.2", text: "Transporte y movilidad en España (II). El transporte y la logística como sector empresarial. Participación en la economía nacional, empresas y participación en el empleo. Comparativa con otros países de la Unión Europea. Gasto de los ciudadanos en transporte. Gasto de los diferentes sectores empresariales en transporte de mercancías y logística. El Observatorio del Transporte y la Logística en España." }, 
+                { id: "C.1.3", text: "Organización del sistema de transporte en España. Función normativa. Inspección, supervisión y otorgamiento de permisos. Gestores de infraestructuras. Operadores. Prestadores de servicios auxiliares. Comisiones de estudio de accidentes. Regulador del mercado." }, 
+                { id: "C.1.4", text: "Conceptos básicos de la legislación en el transporte terrestre. Ley 16/1987 de Ordenación de los Transportes Terrestres (modificada por la Ley 9/2013) y su Reglamento." }, 
+                { id: "C.1.5", text: "Evolución y principios básicos de la legislación del transporte ferroviario en Europa. Los paquetes ferroviarios y la Agencia Ferroviaria Europea. El cuarto paquete ferroviario." }, 
+                { id: "C.1.6", text: "Mercados de transporte liberalizados y mercados en monopolio. Las obligaciones de servicio público en los servicios de transporte de competencia estatal. Normativa europea y su aplicación en España. El Reglamento (CE) N.º 1370/2007 del Parlamento europeo y del Consejo de 23 de octubre de 2007 sobre los servicios públicos de transporte de viajeros por ferrocarril y carretera. La liberalización del transporte ferroviario: modelos de acceso al mercado y situación actual en España. El modelo concesional en los servicios de transporte de viajeros en autobús." }, 
+                { id: "C.1.7", text: "Subvenciones al transporte. Conceptos básicos. Base de datos nacional de subvenciones. Ayudas de Estado." }, 
+                { id: "C.1.8", text: "La intermodalidad en el transporte de viajeros y mercancías. Principales objetivos. Principales magnitudes. Evolución. Corredores y nodos intermodales. Cadenas logísticas intermodales." }, 
+                { id: "C.1.9", text: "El transporte internacional. Principales acuerdos internacionales. Acuerdos internacionales para el transporte de mercancías peligrosas. Organismos y asociaciones internacionales: OACI, OMI. Principios y normativa de la Unión Europea en materia de política de transportes. Europa en Movimiento (Europe on the Move). La Estrategia Europea de Movilidad Sostenible e Inteligente de 2020." }, 
+                { id: "C.1.10", text: "Principales políticas nacionales en transporte y movilidad. Principios básicos de la Estrategia Española de Movilidad Segura, Sostenible y Conectada 2030. Estrategia Estatal por la Bicicleta. Plan de Recuperación, Transformación y Resiliencia de España (PRTR). Componentes 1 y 6." }, 
+                { id: "C.1.11", text: "La movilidad urbana y metropolitana, de viajeros y de mercancías. Principales actores. Movilidad sostenible en ámbito urbano y metropolitano. El transporte público en la movilidad de viajeros. Organización y gestión. Las autoridades de transporte metropolitano. Competencias de la Administración General del Estado. La Agenda Urbana Española. Tendencias. Retos. Movilidad rural." }, 
+                { id: "C.1.12", text: "El coste del transporte. Costes desde el punto de vista económico-privado (costes internos). Estructura de costes en los distintos modos de transporte, en viajeros y mercancías. Costes desde el punto de vista económico-social (costes externos). Internalización de costes externos. Fiscalidad verde." }, 
+                { id: "C.1.13", text: "La investigación, desarrollo e innovación en transportes y movilidad. Los Programas Marco de la Unión Europea. Horizonte Europa 2021-2027: pilares y programas horizontales, elementos principales, asociaciones. El sistema español de investigación, desarrollo e innovación en transportes y movilidad." }, 
+                { id: "C.1.14", text: "Nuevas tecnologías y desarrollos en el transporte y la movilidad (1). Digitalización y nuevos servicios y formas de movilidad. Datos abiertos. Puntos de Acceso Nacionales. La Movilidad como Servicio (MaaS). Big Data. Vehículos autónomos. Movilidad conectada. Automatización de la cadena logística." }, 
+                { id: "C.1.15", text: "Nuevas tecnologías y desarrollos en el transporte y la movilidad (II). Los Sistemas Inteligentes de Transporte (ITS): aplicación de la tecnología a la gestión del sistema de infraestructuras y transporte. Los sistemas de navegación por satélite (GNSS) Galileo y EGNOS y su aplicación en transporte y movilidad." }, 
+                { id: "C.1.16", text: "Planificación del sistema de infraestructuras y transporte de ámbito estatal. Historia reciente de la planificación estratégica de infraestructuras y transporte en España. Planificación estratégica en vigor. La planificación sectorial por modo de transporte. La participación pública en el proceso de planificación. Nuevo enfoque en las políticas de inversión." }, 
+                { id: "C.1.17", text: "Demanda de transporte y análisis coste-beneficio en la planificación del sistema de infraestructuras y transporte. Modelos de demanda de transporte. Empleo de la tecnología Big Data en la planificación. Encuestas y billetaje en la cuantificación y cualificación de la movilidad. Evaluación coste-beneficio (ACB) en el ámbito del transporte." }, 
+                { id: "C.1.18", text: "Infraestructuras de transporte, inversión y financiación. Dotación de infraestructuras de transporte y comparativa con otros países de la Unión Europea. Volumen de inversión en infraestructuras de transporte. La financiación de las infraestructuras: financiación presupuestaria y extrapresupuestaria. Participación del sector privado en la financiación de infraestructuras. Tarificación por uso de las infraestructuras." }, 
+                { id: "C.1.19", text: "La Red Transeuropea de Transporte (RTE-T). Reglamentos CE de desarrollo y financiación de la RTE-T. Los corredores Europeos de Transporte. La RTE-T en España. Financiación europea de infraestructuras. El Banco Europeo de Inversiones. Fondo Europeo de Inversiones Estratégicas (EFSI). Mecanismo Conectar Europa. Fondo Europeo de Desarrollo Regional. Next Generation EU." }, 
+                { id: "C.1.20", text: "La planificación del sistema de infraestructuras y transporte y su integración con las políticas del territorio y ambientales. Efectos ambientales de las infraestructuras de transporte. Gestión y mantenimiento sostenible de las infraestructuras de transporte. Resiliencia de las infraestructuras de transporte frente a los fenómenos meteorológicos extremos y su adaptación al cambio climático durante su ciclo de vida: análisis y diseño de medidas de adaptación. Huella de carbono de los proyectos en análisis de ciclo de vida. Principales medidas en infraestructuras para contribuir a la reducción de emisiones de gases de efecto invernadero." }, 
+                { id: "C.1.21", text: "Sostenibilidad ambiental del transporte. Consumo energético y eficiencia energética. Emisiones a la atmósfera de gases de efecto invernadero y otros contaminantes: papel del transporte en las causas del cambio climático y del deterioro de la calidad del aire. Fuentes de energía alternativas y tecnologías innovadoras de tracción para una movilidad de bajas emisiones. Transporte y políticas en materia de energía y clima: categorización y ejemplos. Marco normativo europeo y nacional sobre infraestructuras para combustibles alternativos." }, 
+                { id: "C.2.1", text: "Desarrollo sostenible. Antecedentes, conceptos y estrategias internacionales, europeas y nacionales. La Agenda 2030 para el Desarrollo Sostenible y los Objetivos de desarrollo sostenible (ODS). Programa de las Naciones Unidas para el Medio Ambiente (PNUMA)." }, 
+                { id: "C.2.2", text: "La I+D+i ambiental. Estrategias y Planes Europeos y Nacionales. Ley 14/2011, de 1 de junio, de la Ciencia, la Tecnología y la Innovación. La Agencia Estatal de Innovación. Competitividad, innovación y sostenibilidad. Medidas de ahorro y eficiencia energética, situación actual y nuevas tendencias." }, 
+                { id: "C.2.3", text: "Política de la Unión Europea y nacional en materia de residuos. Directiva marco de residuos (Directiva 98/2008/CE) y Directiva (UE) 2018/851. Ley 7/2022, de 8 de abril, de residuos y suelos contaminados para una economía circular. Principios. La planificación en materia de residuos: el Plan Estatal Marco de Gestión de Residuos 2016-2022, el Plan Estatal de Inspección en materia de Traslados Transfronterizos de Residuos 2021-2026 (PEITTR) y el Plan Nacional Integral de Residuos de España (PNIR). Consejo de Economía Circular." }, 
+                { id: "C.2.4", text: "Normativa nacional en materia de contaminación del suelo. Real Decreto 9/2005, de 14 de enero, por el que se establece la relación de actividades potencialmente contaminantes del suelo y los criterios y estándares para la declaración de suelos contaminados. Tipos de contaminantes. Usos del suelo. Evaluación del riesgo. Niveles genéricos de referencia. Técnicas de recuperación de suelos." }, 
+                { id: "C.2.5", text: "La Estrategia Española de Economía Circular y sus Planes de Acción: vínculo y aplicación en el sector de la construcción y demolición. Producción y gestión de residuos de construcción y demolición: el Real Decreto 105/2008 de 1 de febrero. Utilización de residuos en obra pública (neumáticos fuera de uso, escorias de incineradores urbanos y materiales de dragado, etc.). La eliminación de residuos mediante depósito en vertedero. Orden APM/1007/2017, de 10 de octubre, sobre normas generales de valorización de materiales naturales excavados para su utilización en operaciones de relleno y obras distintas a aquéllas en las que se generaron." }, 
+                { id: "C.2.6", text: "Conservación, uso sostenible, mejora y restauración del patrimonio natural y de la biodiversidad. Normativa nacional y de la Unión Europea. La Ley 42/2007, de 13 de diciembre, del Patrimonio Natural y la Biodiversidad. La Red Natura 2000. La infraestructura verde." }, 
+                { id: "C.2.7", text: "La Directiva 2010/75/UE de 24 de noviembre de Emisiones Industriales. Real Decreto Legislativo 1/2016, de 16 de diciembre, por el que se aprueba el texto refundido de la Ley de prevención y control integrados de la contaminación. Contaminación: principios, valores y límites de emisión. Las autorizaciones ambientales integradas. Los intercambios de información." }, 
+                { id: "C.2.8", text: "La contaminación atmosférica. Tipos, orígenes y características. Sus fuentes. Sectores y actividades contaminantes. Contaminación atmosférica transfronteriza a larga distancia. Normativa española. Ley 34/2007 de, 15 de noviembre, de calidad del aire y protección de la atmósfera. Programa Nacional de Control de la Contaminación atmosférica." }, 
+                { id: "C.2.9", text: "La contaminación acústica. Normativa de la Unión Europea y española sobre ruido. La ley 37/2003, de 17 de noviembre, del Ruido. Efectos sobre la salud y el medio ambiente. La evaluación, prevención y reducción del ruido ambiental. Medidas correctoras." }, 
+                { id: "C.2.10", text: "La Convención Marco de Naciones Unidas sobre Cambio Climático, el Protocolo de Kioto y el Acuerdo de París. Acción Europea en la lucha contra el cambio climático: comercio europeo de derechos de emisión, normativa en sectores difusos y LULUCF, Estrategia Europea de Adaptación. Pacto Verde Europeo. Ley 7/2021, de 20 de mayo, de Cambio Climático y Transición Energética." }, 
+                { id: "C.2.11", text: "La evaluación ambiental de proyectos y la evaluación ambiental estratégica de planes y programas. Principios. El marco jurídico de la evaluación de impacto ambiental: Ley 21/2013, de 9 de diciembre, de evaluación ambiental. Su aplicación a las infraestructuras del transporte, hidráulicas y costeras." }, 
+                { id: "C.2.12", text: "Acceso a la información en materia de medio ambiente. Convenio de Aarhus. La participación en la gestión ambiental. Normativa de la Unión Europea. La Ley 27/2006, de 18 de julio, por la que se regulan los derechos de acceso a la información, de participación pública y de acceso a la justicia en materia de medio ambiente. Instrumentos y publicaciones para facilitar el acceso a la información ambiental en el ámbito del Ministerio para la Transición Ecológica y el Reto Demográfico." }, 
+                { id: "C.2.13", text: "La normativa de responsabilidad medioambiental. Ley 26/2007, de 23 de octubre, de Responsabilidad Medioambiental." }, 
+                { id: "C.2.14", text: "La protección del medio marino. Ley 41/2010, de 29 de diciembre, sobre protección del Medio Marino. Los Convenios regionales de protección del medio marino de los que España es Parte: el Convenio de Barcelona y el Convenio OSPAR." }, 
+                { id: "C.2.15", text: "Prevención y mitigación de la fragmentación de hábitats causada por las infraestructuras de transporte. Restauración ecológica y prevención de especies exóticas invasoras. Permeabilización de infraestructuras para la conservación de especies protegidas. Protección de la avifauna. Corrección de tendidos eléctricos para evitar la colisión y electrocución de la avifauna." } 
             ]},
-            "carreteras": { name: "Carreteras y Ferrocarriles", color: 0xd97706, topics: [
-                { id: "B.1.1", text: "La legislación de carreteras. Ley 37/2015, de 29 de septiembre, de carreteras. Reglamento General de Carreteras. Funciones y estructura de la Dirección General de Carreteras. Catálogo de la Red de Carreteras del Estado." },
-                { id: "B.1.2", text: "La planificación estratégica de carreteras del Estado y los programas de carreteras. Evaluación coste-beneficio, análisis multicriterio y viabilidad financiera. Estudios informativos y anteproyectos. Nota de Servicio 3/2014 sobre prescripciones y recomendaciones técnicas relativas a los contenidos mínimos a incluir en los estudios de rentabilidad de los estudios informativos o anteproyectos. Criterios aplicables a carreteras de la Orden FOM/3317/2010 por la que se aprueba la instrucción sobre las medidas específicas para la mejora de la eficiencia en la ejecución de las obras públicas de infraestructuras ferroviarias, carreteras y aeropuertos del Ministerio de Transportes, Movilidad y Agenda Urbana." },
-                { id: "B.1.3", text: "Estudios de carreteras (1): cartografía y topografía. Estudios geológicos, geotécnicos y de procedencia de materiales. Estudios climatológicos e hidrológicos. Normativa sísmica." },
-                { id: "B.1.4", text: "Estudios de carreteras (II): estudios de tráfico. Toma de datos: sistemas convencionales y nuevas tecnologías. Modelización del tráfico. Prognosis de tráfico. Plan de aforos. Mapas de tráfico del Ministerio de Transportes, Movilidad y Agenda Urbana." },
-                { id: "B.1.5", text: "Trazado de carreteras: norma 3.1-IC de trazado. Trazado en planta. Trazado en alzado. Sección transversal. Nudos, enlaces e intersecciones. Orden Circular 1/2021 sobre recomendaciones para el diseño de carreteras 2+1 y carriles adicionales de adelantamiento." },
-                { id: "B.1.6", text: "Drenaje superficial y subterráneo. Norma 5.2-IC de drenaje superficial. Orden Circular 17/2003 de recomendaciones para el proyecto y construcción del drenaje subterráneo en obras de carretera." },
-                { id: "B.1.7", text: "Movimiento de tierras: clasificación y características de los suelos según el PG-3. Construcción de terraplenes, pedraplenes y rellenos todo uno. Compactación. Ejecución de excavaciones: estabilidad de taludes. Protección de la infraestructura frente a la caída de materiales. Técnicas de mejora del terreno. Cimentaciones de estructuras: tipologías y métodos constructivos." },
-                { id: "B.1.8", text: "Firmes (1): conceptos generales. La explanada: capacidad de soporte y materiales. Materiales de los firmes: zahorras, suelocemento, gravacemento y mezclas bituminosas. Clasificaciones de las mezclas bituminosas. Pavimentos de hormigón. Norma 6.1-IC de secciones de firme." },
-                { id: "B.1.9", text: "Firmes (II): características superficiales y estructurales de los firmes. Auscultación de firmes. Estrategias de conservación de los firmes. Rehabilitación de firmes: norma 6.3-IC. Orden Circular 40/2017: reciclado in situ con emulsión de capas bituminosas, reciclado in situ con cemento de capas de firme, reciclado en caliente y semicaliente en central de capas bituminosas (RAP). Transformación de firmes rígidos degradados en firmes mixtos. Consideraciones ambientales: carencia de materiales y huella energética." },
-                { id: "B.1.10", text: "Obras de paso: tipologías y materiales. Métodos constructivos y medios auxiliares. Conservación e inspección de obras de paso. Patologías de degradación. Rehabilitación de las obras de paso. Normativa aplicable. Aspectos principales del Real Decreto 470/2021 por el que se aprueba el Código Estructural. Monitorización en tiempo real de estructuras y taludes." },
-                { id: "B.1.11", text: "Túneles en carreteras (1): métodos constructivos. Maquinaria y medios auxiliares. Sostenimiento. Revestimiento. Equipamiento e instalaciones en los túneles. Real Decreto 635/2006 sobre requisitos mínimos de seguridad en los túneles de carreteras del Estado." },
-                { id: "B.1.12", text: "Túneles de carreteras (II): mantenimiento de túneles de carreteras. Plan de adecuación de túneles al Real Decreto 635/2006. Metodología de análisis de riesgo en túneles de la RCE. Orden Circular 27/2008 sobre metodología de inspección de túneles. Orden Circular 33/2013 sobre el manual de explotación de los túneles de la RCE." },
-                { id: "B.1.13", text: "Señalización: norma 8.1-IC de señalización vertical. Norma 8.2- IC de marcas viales. Sistema de señalización turística homologada en carreteras estatales (SISTHO). Balizamiento. Sistemas de contención: Orden Circular 35/2014 sobre criterios de aplicación de sistemas de contención de vehículos." },
-                { id: "B.1.14", text: "Pliego de prescripciones técnicas generales para obras de carreteras y puentes (PG-3). El Reglamento UE 305/2011 de productos de la construcción. El marcado CE. Los Eurocódigos." },
-                { id: "B.1.15", text: "Proyecto de trazado. Trámite de información pública. Proyecto de construcción. Documentos del proyecto de construcción: memoria y anejos, pliego de prescripciones técnicas particulares, mediciones y presupuestos. Dirección del proyecto. Supervisión y aprobación del proyecto. Principios de la metodología BIM aplicados a los proyectos de carreteras." },
-                { id: "B.1.16", text: "Construcción de carreteras (1): dirección de obras de carreteras. Plan de obra. Organización de las obras. Aseguramiento de la calidad. Plan de seguridad y salud. Plan de vigilancia medioambiental. Servicios afectados." },
-                { id: "B.1.17", text: "Construcción de carreteras (II): incidencias en las obras. Certificaciones de obras y relaciones valoradas. La certificación final y liquidación. Garantía de las obras y vicios ocultos." },
-                { id: "B.1.18", text: "La gestión de la Red de Carreteras del Estado: sistemas de gestión directos e indirectos. Concesiones de carreteras del Estado: autopistas de peaje y autovías en régimen de concesión. Actuaciones preparatorias de los contratos de concesión: el estudio de viabilidad. Inspección de concesiones. La Delegación del Gobierno en las sociedades concesionarias de autopistas nacionales de peaje. La gestión a través de la Sociedad Estatal de Infraestructuras del Transporte Terrestre, S.M.E., SA." },
-                { id: "B.1.19", text: "Conservación de carreteras (1): contratos de conservación y explotación empleados en la Red de Carreteras del Estado. Vialidad invernal. Inspecciones de elementos y sistemas de gestión. Nota de Servicio 2/2021: seguridad en las actividades de conservación. Nota de Servicio 1/2022: recomendaciones para mejorar la sostenibilidad en los centros de conservación y explotación." },
-                { id: "B.1.20", text: "Conservación de carreteras (II): proyectos y obras de conservación extraordinaria. Normativa específica de conservación y particularidades de la normativa genérica aplicables. Nota de Servicio 1/2019. Obras de emergencia. Orden Circular 36/2015, sobre criterios a aplicar en la iluminación de carreteras a cielo abierto y túneles." },
-                { id: "B.1.21", text: "Explotación de carreteras (1): protección del dominio público viario y limitaciones a la propiedad: zonas de dominio público, servidumbre y afección. Zona de limitación a la edificabilidad. Publicidad. Procedimiento de autorizaciones. Informes vinculantes a instrumentos de planeamiento urbanístico y ordenación territorial. Aplicación del Real Decreto Legislativo 7/2015, de 30 de octubre, por el que se aprueba el texto refundido de la Ley de Suelo y Rehabilitación Urbana, en materia de explotación de carreteras. Régimen sancionador." },
-                { id: "B.1.22", text: "Explotación de carreteras (II): transportes especiales. Nota de Servicio 1/2018. Áreas de servicio y estaciones de servicio. Aparcamientos seguros. Accesos a la Red de Carreteras del Estado: normativa aplicable. Travesías y tramos urbanos. Estudios de delimitación de tramos urbanos. Cesión de tramos. Orden TMA/1160/2021, de cesión de tramos a Ayuntamientos. Gestión y seguimiento en materia de ruido: aplicación de la Ley 37/2003 de ruido a la Red de Carreteras del Estado. Mapas de ruido y planes de acción." },
-                { id: "B.1.23", text: "Innovación aplicada a la movilidad por carretera: sistemas inteligentes de transporte cooperativos (C-ITS): experiencias piloto. Vehículo autónomo y conectado. Carreteras inteligentes. Tecnologías aplicables para la tarificación de las carreteras. Digitalización de la Red de Carreteras del Estado." },
-                { id: "B.1.24", text: "Seguridad vial: indicadores de seguridad vial. Últimas cifras y evolución de los principales indicadores. Aspectos de la infraestructura que más incidencia tienen sobre la seguridad vial. Real Decreto 345/2011 sobre gestión de la seguridad de las infraestructuras viarias en la Red de Carreteras del Estado y su desarrollo en la Orden Circular 30/2012 y Orden Circular 39/2017." },
-                { id: "B.2.1", text: "La infraestructura ferroviaria dentro de la Ley 38/2015, de 29 de septiembre, del Sector Ferroviario, y el Real Decreto 2387/2004, de 30 de diciembre, por el que se aprueba el Reglamento del Sector Ferroviario (I). La Red Ferroviaria de Interés General. La planificación, proyecto y construcción de sus infraestructuras. La Estrategia Indicativa. Estudios y proyectos: tipos, contenido y tramitación. La construcción y puesta en servicio. Incidencia sobre el planeamiento urbanístico." },
-                { id: "B.2.2", text: "La infraestructura ferroviaria dentro de la Ley 38/2015, de 29 de septiembre, del Sector Ferroviario, y el Real Decreto 2387/2004, de 30 de diciembre, por el que se aprueba el Reglamento del Sector Ferroviario (II). Los administradores de infraestructuras ferroviarias. Funciones, naturaleza, recursos, y patrimonio. Declaración de Red. Adjudicación de capacidad. Prestación de servicios." },
-                { id: "B.2.3", text: "La infraestructura ferroviaria dentro de la Ley 38/2015, de 29 de septiembre, del Sector Ferroviario, y el Real Decreto 2387/2004, de 30 de diciembre, por el que se aprueba el Reglamento del Sector Ferroviario (III). Zonas de servicio. Limitaciones a la propiedad. Infraestructuras ferroviarias en puertos y aeropuertos. Infraestructuras ferroviarias privadas." },
-                { id: "B.2.4", text: "El transporte ferroviario dentro de la Ley 38/2015, de 29 de septiembre, del Sector Ferroviario, y el Real Decreto 2387/2004, de 30 de diciembre, por el que se aprueba el Reglamento del Sector Ferroviario. Actores del sistema ferroviario nacional y europeo. Administradores de infraestructura y empresas ferroviarias. Concepto de empresa ferroviaria, obtención de licencias de empresas ferroviarias. Los cánones y tarifas." },
-                { id: "B.2.5", text: "Infraestructura ferroviaria: trazado y geometría. Definición de los parámetros básicos en planta y alzado. Valores recomendados y límite. Secciones transversales. Gálibos. Entre-eje. Criterios en infraestructuras ferroviarias de la Orden FOM/3317/2010, de 17 de diciembre, por la que se aprueba la Instrucción sobre las medidas específicas para la mejora de la eficiencia en la ejecución de las obras públicas de infraestructuras ferroviarias, carreteras y aeropuertos del Ministerio de Fomento." },
-                { id: "B.2.6", text: "Las capas de asiento ferroviario. Plataforma: capas constitutivas, características de los materiales. El balasto: funciones y características de los materiales. Dimensionamiento." },
-                { id: "B.2.7", text: "La vía y sus elementos constitutivos. Tipología y materiales. Aparatos de vía. La vía en placa. El ancho de vía en España. Problemática de la coexistencia de varios anchos y alternativas técnicas para su solución. Cambiadores de ancho. La vía de tres hilos, principales elementos y su problemática." },
-                { id: "B.2.8", text: "Túneles de ferrocarril. Normativa técnica, secciones, métodos constructivos, efectos aerodinámicos y seguridad. Estructuras ferroviarias: Instrucción sobre las acciones a considerar en el proyecto de puentes de ferrocarril (IAPF). Singularidad de los efectos dinámicos." },
-                { id: "B.2.9", text: "Conceptos básicos de la ejecución de obras ferroviarias. Procedimientos constructivos, condicionantes y maquinaria. El mantenimiento de la red. Operaciones de auscultación de la vía en servicio. Mantenimiento preventivo y correctivo. Plan de contingencias. Renovaciones y otras operaciones, procedimientos constructivos. Inspecciones técnicas en los puentes de ferrocarril." },
-                { id: "B.2.10", text: "Pasos a nivel. Marco legal. Definición y clasificación. Tipología de protecciones. Alternativas de supresión. Procedimientos constructivos singulares. Otros cruces a nivel y cruces entre andenes." },
-                { id: "B.2.11", text: "Instalaciones de servicio ferroviarias. Tipologías: viajeros, mercancías y técnicas. Necesidades funcionales ferroviarias. Condicionantes de diseño y dimensionamiento. Andenes. Accesibilidad. Autopistas ferroviarias." },
-                { id: "B.2.12", text: "Electrificación ferroviaria. Sistemas de sustentación. Tipologías de catenarias. Tensiones de funcionamiento. Otros sistemas de alimentación. Normativa de aplicación." },
-                { id: "B.2.13", text: "Señalización e instalaciones de seguridad ferroviaria. Conceptos generales. Sistemas tradicionales clase B y nuevas tendencias: el ERTMS. Normativa de aplicación Explotación ferroviaria: estudios de capacidad y de demanda y sistemas de gestión de capacidad." },
-                { id: "B.2.14", text: "Las infraestructuras ferroviarias en el entorno urbano. Problemática. Alternativas para su integración. Sistemas de financiación en colaboración con otras administraciones." },
-                { id: "B.2.15", text: "La seguridad ferroviaria en la Directiva 2016/798/UE de seguridad y en el Real Decreto 929/2020, de 27 de octubre de seguridad operacional e interoperabilidad ferroviarias (I). Desarrollo y gestión de la seguridad ferroviaria. Funciones de los agentes del sistema ferroviario. Objetivos comunes de seguridad. Métodos comunes de seguridad. Sistemas de gestión de la seguridad." },
-                { id: "B.2.16", text: "La seguridad ferroviaria en la Directiva 2016/798/UE de seguridad y en el Real Decreto 929/2020, de 27 de octubre de seguridad operacional e interoperabilidad ferroviarias (II). Certificados y autorizaciones de seguridad. Evaluación y supervisión. La Agencia Estatal de Seguridad Ferroviaria. La Autoridad Administrativa Independiente para la Investigación Técnica de Accidentes e Incidentes ferroviarios, marítimos y de aviación civil. La Agencia Ferroviaria de la Unión Europea." },
-                { id: "B.2.17", text: "La interoperabilidad ferroviaria en la Directiva 2016/797/UE de interoperabilidad y en el Real Decreto 929/2020, de 27 de octubre de seguridad operacional e interoperabilidad ferroviarias (I). Especificaciones técnicas de interoperabilidad (ETIS) y normas nacionales (Instrucciones ferroviarias). Componentes de interoperabilidad. Subsistemas estructurales y funcionales. Organismos notificados." },
-                { id: "B.2.18", text: "La interoperabilidad ferroviaria en la Directiva 2016/797/UE de interoperabilidad y en el Real Decreto 929/2020, de 27 de octubre de seguridad operacional e interoperabilidad ferroviarias (II). Entrada en servicio de subsistemas estructurales fijos y de puesta en servicio de líneas, tramos, estaciones y terminales." },
-                { id: "B.2.19", text: "Personal ferroviario. Conceptos generales de la Orden FOM/2872/2010, de 5 de noviembre: categorías de personal con actividades relacionadas con la seguridad, licencias y certificados de maquinistas, centros de formación y centros de reconocimiento médico. Conceptos generales de la ETI OPE en relación con el personal ferroviario." },
-                { id: "B.2.20", text: "Material rodante ferroviario. Entrada en servicio de vehículos. Mantenimiento de vehículos y organismos responsables: entidades encargadas de mantenimiento y centros de mantenimiento. Normativa básica." },
-                { id: "B.2.21", text: "Conceptos básicos de normativa de circulación ferroviaria: la Especificación Técnica de Interoperabilidad de Explotación y Gestión del tráfico (ETI OPE) y el Reglamento de Circulación Ferroviaria (Real Decreto 664/2015, de 17 de julio)." },
-                { id: "B.2.22", text: "La gestión de la seguridad operacional en los cambios en el sistema ferroviario: El Reglamento UE 402/2013 relativo a la adopción de un método común de seguridad para la evaluación y valoración del riesgo. Concepto de cambio significativo. Fases del proceso de gestión del riesgo: definición del sistema, identificación de amenazas, análisis del riesgo, registro de amenazas, funciones del evaluador independiente, informe del evaluador independiente. Declaración del proponente. Integración Segura." }
-            ]},
-            "transportes": { name: "Transportes y MA", color: 0x65a30d, topics: [
-                { id: "C.1.1", text: "Transporte y movilidad en España (I). Movilidad interior y movilidad exterior de viajeros y mercancías. Repartos modales, principales magnitudes y evolución. Comparación con otros países de la Unión Europea. Relación entre movilidad y actividad económica. El transporte y la industria del turismo." },
-                { id: "C.1.2", text: "Transporte y movilidad en España (II). El transporte y la logística como sector empresarial. Participación en la economía nacional, empresas y participación en el empleo. Comparativa con otros países de la Unión Europea. Gasto de los ciudadanos en transporte. Gasto de los diferentes sectores empresariales en transporte de mercancías y logística. El Observatorio del Transporte y la Logística en España." },
-                { id: "C.1.3", text: "Organización del sistema de transporte en España. Función normativa. Inspección, supervisión y otorgamiento de permisos. Gestores de infraestructuras. Operadores. Prestadores de servicios auxiliares. Comisiones de estudio de accidentes. Regulador del mercado." },
-                { id: "C.1.4", text: "Conceptos básicos de la legislación en el transporte terrestre. Ley 16/1987 de Ordenación de los Transportes Terrestres (modificada por la Ley 9/2013) y su Reglamento." },
-                { id: "C.1.5", text: "Evolución y principios básicos de la legislación del transporte ferroviario en Europa. Los paquetes ferroviarios y la Agencia Ferroviaria Europea. El cuarto paquete ferroviario." },
-                { id: "C.1.6", text: "Mercados de transporte liberalizados y mercados en monopolio. Las obligaciones de servicio público en los servicios de transporte de competencia estatal. Normativa europea y su aplicación en España. El Reglamento (CE) N.º 1370/2007 del Parlamento europeo y del Consejo de 23 de octubre de 2007 sobre los servicios públicos de transporte de viajeros por ferrocarril y carretera. La liberalización del transporte ferroviario: modelos de acceso al mercado y situación actual en España. El modelo concesional en los servicios de transporte de viajeros en autobús." },
-                { id: "C.1.7", text: "Subvenciones al transporte. Conceptos básicos. Base de datos nacional de subvenciones. Ayudas de Estado." },
-                { id: "C.1.8", text: "La intermodalidad en el transporte de viajeros y mercancías. Principales objetivos. Principales magnitudes. Evolución. Corredores y nodos intermodales. Cadenas logísticas intermodales." },
-                { id: "C.1.9", text: "El transporte internacional. Principales acuerdos internacionales. Acuerdos internacionales para el transporte de mercancías peligrosas. Organismos y asociaciones internacionales: OACI, OMI. Principios y normativa de la Unión Europea en materia de política de transportes. Europa en Movimiento (Europe on the Move). La Estrategia Europea de Movilidad Sostenible e Inteligente de 2020." },
-                { id: "C.1.10", text: "Principales políticas nacionales en transporte y movilidad. Principios básicos de la Estrategia Española de Movilidad Segura, Sostenible y Conectada 2030. Estrategia Estatal por la Bicicleta. Plan de Recuperación, Transformación y Resiliencia de España (PRTR). Componentes 1 y 6." },
-                { id: "C.1.11", text: "La movilidad urbana y metropolitana, de viajeros y de mercancías. Principales actores. Movilidad sostenible en ámbito urbano y metropolitano. El transporte público en la movilidad de viajeros. Organización y gestión. Las autoridades de transporte metropolitano. Competencias de la Administración General del Estado. La Agenda Urbana Española. Tendencias. Retos. Movilidad rural." },
-                { id: "C.1.12", text: "El coste del transporte. Costes desde el punto de vista económico-privado (costes internos). Estructura de costes en los distintos modos de transporte, en viajeros y mercancías. Costes desde el punto de vista económico-social (costes externos). Internalización de costes externos. Fiscalidad verde." },
-                { id: "C.1.13", text: "La investigación, desarrollo e innovación en transportes y movilidad. Los Programas Marco de la Unión Europea. Horizonte Europa 2021-2027: pilares y programas horizontales, elementos principales, asociaciones. El sistema español de investigación, desarrollo e innovación en transportes y movilidad." },
-                { id: "C.1.14", text: "Nuevas tecnologías y desarrollos en el transporte y la movilidad (1). Digitalización y nuevos servicios y formas de movilidad. Datos abiertos. Puntos de Acceso Nacionales. La Movilidad como Servicio (MaaS). Big Data. Vehículos autónomos. Movilidad conectada. Automatización de la cadena logística." },
-                { id: "C.1.15", text: "Nuevas tecnologías y desarrollos en el transporte y la movilidad (II). Los Sistemas Inteligentes de Transporte (ITS): aplicación de la tecnología a la gestión del sistema de infraestructuras y transporte. Los sistemas de navegación por satélite (GNSS) Galileo y EGNOS y su aplicación en transporte y movilidad." },
-                { id: "C.1.16", text: "Planificación del sistema de infraestructuras y transporte de ámbito estatal. Historia reciente de la planificación estratégica de infraestructuras y transporte en España. Planificación estratégica en vigor. La planificación sectorial por modo de transporte. La participación pública en el proceso de planificación. Nuevo enfoque en las políticas de inversión." },
-                { id: "C.1.17", text: "Demanda de transporte y análisis coste-beneficio en la planificación del sistema de infraestructuras y transporte. Modelos de demanda de transporte. Empleo de la tecnología Big Data en la planificación. Encuestas y billetaje en la cuantificación y cualificación de la movilidad. Evaluación coste-beneficio (ACB) en el ámbito del transporte." },
-                { id: "C.1.18", text: "Infraestructuras de transporte, inversión y financiación. Dotación de infraestructuras de transporte y comparativa con otros países de la Unión Europea. Volumen de inversión en infraestructuras de transporte. La financiación de las infraestructuras: financiación presupuestaria y extrapresupuestaria. Participación del sector privado en la financiación de infraestructuras. Tarificación por uso de las infraestructuras." },
-                { id: "C.1.19", text: "La Red Transeuropea de Transporte (RTE-T). Reglamentos CE de desarrollo y financiación de la RTE-T. Los corredores Europeos de Transporte. La RTE-T en España. Financiación europea de infraestructuras. El Banco Europeo de Inversiones. Fondo Europeo de Inversiones Estratégicas (EFSI). Mecanismo Conectar Europa. Fondo Europeo de Desarrollo Regional. Next Generation EU." },
-                { id: "C.1.20", text: "La planificación del sistema de infraestructuras y transporte y su integración con las políticas del territorio y ambientales. Efectos ambientales de las infraestructuras de transporte. Gestión y mantenimiento sostenible de las infraestructuras de transporte. Resiliencia de las infraestructuras de transporte frente a los fenómenos meteorológicos extremos y su adaptación al cambio climático durante su ciclo de vida: análisis y diseño de medidas de adaptación. Huella de carbono de los proyectos en análisis de ciclo de vida. Principales medidas en infraestructuras para contribuir a la reducción de emisiones de gases de efecto invernadero." },
-                { id: "C.1.21", text: "Sostenibilidad ambiental del transporte. Consumo energético y eficiencia energética. Emisiones a la atmósfera de gases de efecto invernadero y otros contaminantes: papel del transporte en las causas del cambio climático y del deterioro de la calidad del aire. Fuentes de energía alternativas y tecnologías innovadoras de tracción para una movilidad de bajas emisiones. Transporte y políticas en materia de energía y clima: categorización y ejemplos. Marco normativo europeo y nacional sobre infraestructuras para combustibles alternativos." },
-                { id: "C.2.1", text: "Desarrollo sostenible. Antecedentes, conceptos y estrategias internacionales, europeas y nacionales. La Agenda 2030 para el Desarrollo Sostenible y los Objetivos de desarrollo sostenible (ODS). Programa de las Naciones Unidas para el Medio Ambiente (PNUMA)." },
-                { id: "C.2.2", text: "La I+D+i ambiental. Estrategias y Planes Europeos y Nacionales. Ley 14/2011, de 1 de junio, de la Ciencia, la Tecnología y la Innovación. La Agencia Estatal de Innovación. Competitividad, innovación y sostenibilidad. Medidas de ahorro y eficiencia energética, situación actual y nuevas tendencias." },
-                { id: "C.2.3", text: "Política de la Unión Europea y nacional en materia de residuos. Directiva marco de residuos (Directiva 98/2008/CE) y Directiva (UE) 2018/851. Ley 7/2022, de 8 de abril, de residuos y suelos contaminados para una economía circular. Principios. La planificación en materia de residuos: el Plan Estatal Marco de Gestión de Residuos 2016-2022, el Plan Estatal de Inspección en materia de Traslados Transfronterizos de Residuos 2021-2026 (PEITTR) y el Plan Nacional Integral de Residuos de España (PNIR). Consejo de Economía Circular." },
-                { id: "C.2.4", text: "Normativa nacional en materia de contaminación del suelo. Real Decreto 9/2005, de 14 de enero, por el que se establece la relación de actividades potencialmente contaminantes del suelo y los criterios y estándares para la declaración de suelos contaminados. Tipos de contaminantes. Usos del suelo. Evaluación del riesgo. Niveles genéricos de referencia. Técnicas de recuperación de suelos." },
-                { id: "C.2.5", text: "La Estrategia Española de Economía Circular y sus Planes de Acción: vínculo y aplicación en el sector de la construcción y demolición. Producción y gestión de residuos de construcción y demolición: el Real Decreto 105/2008 de 1 de febrero. Utilización de residuos en obra pública (neumáticos fuera de uso, escorias de incineradores urbanos y materiales de dragado, etc.). La eliminación de residuos mediante depósito en vertedero. Orden APM/1007/2017, de 10 de octubre, sobre normas generales de valorización de materiales naturales excavados para su utilización en operaciones de relleno y obras distintas a aquéllas en las que se generaron." },
-                { id: "C.2.6", text: "Conservación, uso sostenible, mejora y restauración del patrimonio natural y de la biodiversidad. Normativa nacional y de la Unión Europea. La Ley 42/2007, de 13 de diciembre, del Patrimonio Natural y la Biodiversidad. La Red Natura 2000. La infraestructura verde." },
-                { id: "C.2.7", text: "La Directiva 2010/75/UE de 24 de noviembre de Emisiones Industriales. Real Decreto Legislativo 1/2016, de 16 de diciembre, por el que se aprueba el texto refundido de la Ley de prevención y control integrados de la contaminación. Contaminación: principios, valores y límites de emisión. Las autorizaciones ambientales integradas. Los intercambios de información." },
-                { id: "C.2.8", text: "La contaminación atmosférica. Tipos, orígenes y características. Sus fuentes. Sectores y actividades contaminantes. Contaminación atmosférica transfronteriza a larga distancia. Normativa española. Ley 34/2007 de, 15 de noviembre, de calidad del aire y protección de la atmósfera. Programa Nacional de Control de la Contaminación atmosférica." },
-                { id: "C.2.9", text: "La contaminación acústica. Normativa de la Unión Europea y española sobre ruido. La ley 37/2003, de 17 de noviembre, del Ruido. Efectos sobre la salud y el medio ambiente. La evaluación, prevención y reducción del ruido ambiental. Medidas correctoras." },
-                { id: "C.2.10", text: "La Convención Marco de Naciones Unidas sobre Cambio Climático, el Protocolo de Kioto y el Acuerdo de París. Acción Europea en la lucha contra el cambio climático: comercio europeo de derechos de emisión, normativa en sectores difusos y LULUCF, Estrategia Europea de Adaptación. Pacto Verde Europeo. Ley 7/2021, de 20 de mayo, de Cambio Climático y Transición Energética." },
-                { id: "C.2.11", text: "La evaluación ambiental de proyectos y la evaluación ambiental estratégica de planes y programas. Principios. El marco jurídico de la evaluación de impacto ambiental: Ley 21/2013, de 9 de diciembre, de evaluación ambiental. Su aplicación a las infraestructuras del transporte, hidráulicas y costeras." },
-                { id: "C.2.12", text: "Acceso a la información en materia de medio ambiente. Convenio de Aarhus. La participación en la gestión ambiental. Normativa de la Unión Europea. La Ley 27/2006, de 18 de julio, por la que se regulan los derechos de acceso a la información, de participación pública y de acceso a la justicia en materia de medio ambiente. Instrumentos y publicaciones para facilitar el acceso a la información ambiental en el ámbito del Ministerio para la Transición Ecológica y el Reto Demográfico." },
-                { id: "C.2.13", text: "La normativa de responsabilidad medioambiental. Ley 26/2007, de 23 de octubre, de Responsabilidad Medioambiental." },
-                { id: "C.2.14", text: "La protección del medio marino. Ley 41/2010, de 29 de diciembre, sobre protección del Medio Marino. Los Convenios regionales de protección del medio marino de los que España es Parte: el Convenio de Barcelona y el Convenio OSPAR." },
-                { id: "C.2.15", text: "Prevención y mitigación de la fragmentación de hábitats causada por las infraestructuras de transporte. Restauración ecológica y prevención de especies exóticas invasoras. Permeabilización de infraestructuras para la conservación de especies protegidas. Protección de la avifauna. Corrección de tendidos eléctricos para evitar la colisión y electrocución de la avifauna." }
-            ]}
+            // El bloque 'admin' no tiene temas detallados para el bombo en la configuración original,
+            // por lo que no se incluirá en la simulación del bombo a menos que se añadan.
+            "admin": { name: "Administrativo", color: 0x4f46e5, topics: [] }
         };
-        
+
         // --- ESTADO DE LA APLICACIÓN ---
         let state = {
-            mode: 'topic',
-            lockedBlocks: {},
-            threejsInitialized: false
+            mode: 'topic', // Modo inicial: 'topic', 'percent', o 'simulation'
+            lockedBlocks: {}, // Estado de los bloques bloqueados para el modo porcentaje
+            threejsInitialized: false // Bandera para saber si Three.js ya se inicializó
         };
+        // Inicializa todos los bloques como no bloqueados por defecto
         blocksConfig.forEach(b => state.lockedBlocks[b.id] = false);
 
         // --- SELECTORES DEL DOM ---
@@ -358,147 +388,386 @@
         const topicContent = document.getElementById('mode-by-topic-content');
         const percentContent = document.getElementById('mode-by-percent-content');
         const simulationContent = document.getElementById('mode-simulation-content');
+        const summaryCalc = document.getElementById('summary-calc'); // Resumen de la calculadora
+        const topicContainer = document.getElementById('blocks-container-topic');
+        const percentContainer = document.getElementById('blocks-container-percent');
+        const calculateOptimalBtn = document.getElementById('calculate-optimal-btn');
+        const optimizerMessage = document.getElementById('optimizer-message');
         const startSimulationBtn = document.getElementById('start-simulation-btn');
+        const simulationContainer = document.getElementById('simulation-container'); // Contenedor de la simulación para estilos
 
-        // --- LÓGICA DE LA CALCULADORA ---
+        // --- LÓGICA DE LA CALCULADORA DE PROBABILIDADES ---
+
+        /**
+         * Calcula la probabilidad de éxito de un bloque de temas.
+         * La fórmula utilizada es 1 - P(fallar ambos temas), donde P(fallar ambos) = (temas_no_estudiados / total) * ((temas_no_estudiados - 1) / (total - 1))
+         * @param {number} studied - Número de temas estudiados en el bloque.
+         * @param {number} total - Número total de temas en el bloque.
+         * @returns {number} La probabilidad de éxito (entre 0 y 1).
+         */
         const getProb = (studied, total) => {
-            if (studied >= total - 1) return 1;
-            if (studied < 0 || total < 2) return 0;
+            if (studied >= total - 1) return 1; // Si estudias todos menos uno, la probabilidad es 1
+            if (studied < 0 || total < 2) return 0; // Casos base para evitar divisiones por cero o resultados negativos
             const probFail = ((total - studied) / total) * ((total - studied - 1) / (total - 1));
             return 1 - probFail;
         };
+
+        /**
+         * Actualiza los valores de probabilidad y el resumen general en la interfaz.
+         */
         const calculateAndDisplayProbabilities = () => {
+            // Determina qué contenedor de bloques usar según el modo actual
             const containerId = state.mode === 'topic' ? '#blocks-container-topic' : '#blocks-container-percent';
             const blocksContainer = document.querySelector(containerId);
-            if (!blocksContainer) return;
+            if (!blocksContainer) return; // Si el contenedor no existe, salir
+
             let totalStudied = 0;
             let grandTotalTopics = 0;
             let overallProbability = 1;
 
+            // Itera sobre cada tarjeta de bloque para calcular y mostrar probabilidades
             blocksContainer.querySelectorAll('.block-card').forEach(card => {
                 const total = parseInt(card.dataset.total, 10);
                 const input = card.querySelector('.studied-input');
                 let studied = parseInt(input.value, 10);
 
+                // Valida y ajusta el valor de temas estudiados
                 if (isNaN(studied) || studied < 0) studied = 0;
                 if (studied > total) studied = total;
-                input.value = studied;
+                input.value = studied; // Asegura que el input refleje el valor ajustado
                 
+                // Calcula la probabilidad para el bloque actual
                 const blockProb = getProb(studied, total);
                 card.querySelector('.probability-output').textContent = `${(blockProb * 100).toFixed(2)}%`;
 
+                // Acumula para el resumen general
                 totalStudied += studied;
                 grandTotalTopics += total;
-                overallProbability *= blockProb;
+                overallProbability *= blockProb; // Multiplica probabilidades para obtener la probabilidad global
             });
 
+            // Actualiza el resumen general en la interfaz
             document.getElementById('total-summary').textContent = `${totalStudied} / ${grandTotalTopics}`;
             document.getElementById('overall-probability').textContent = `${(overallProbability * 100).toFixed(2)}%`;
         };
+        
+        /**
+         * Genera el HTML para una tarjeta de bloque de temas.
+         * @param {object} block - Objeto con la configuración del bloque (id, name, total).
+         * @param {string} mode - Modo actual ('topic' o 'percent').
+         * @returns {string} HTML del bloque.
+         */
         const blockTemplate = (block, mode) => {
             const isLocked = state.lockedBlocks[block.id];
             const isPercentMode = mode === 'percent';
             const inputId = `${block.id}-input-${mode}`;
-            const lockIcon = isLocked ? `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-600"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>` : `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>`;
-            return `<div class="block-card bg-white p-6 rounded-xl shadow-md border border-slate-200" data-id="${block.id}" data-total="${block.total}"><div class="flex justify-between items-start"><div><h2 class="text-xl font-semibold text-slate-800">${block.name}</h2><p class="text-sm text-slate-500">Total: ${block.total} temas</p></div>${isPercentMode ? `<div class="lock-icon" data-id="${block.id}">${lockIcon}</div>` : ''}</div><div class="mt-4"><label for="${inputId}" class="text-sm font-medium text-slate-600">Temas estudiados:</label><input type="number" id="${inputId}" class="studied-input w-full mt-1 p-2 border-2 ${isPercentMode && !isLocked ? 'bg-slate-100' : 'bg-white'} border-slate-200 rounded-lg text-center font-semibold text-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" min="0" max="${block.total}" value="0" ${isPercentMode && !isLocked ? 'readonly' : ''}></div><div class="mt-4 text-center bg-indigo-50 p-3 rounded-lg"><span class="text-sm text-indigo-800 font-semibold">Probabilidad en bloque:</span><p class="text-2xl font-bold text-indigo-600 probability-output">0.00%</p></div></div>`;
+            // Iconos SVG para candado abierto/cerrado
+            const lockIcon = isLocked ? 
+                `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-600"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>` : 
+                `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>`;
+
+            return `
+                <div class="block-card bg-white p-6 rounded-xl shadow-md border border-slate-200" data-id="${block.id}" data-total="${block.total}">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h2 class="text-xl font-semibold text-slate-800">${block.name}</h2>
+                            <p class="text-sm text-slate-500">Total: ${block.total} temas</p>
+                        </div>
+                        ${isPercentMode ? `<div class="lock-icon" data-id="${block.id}">${lockIcon}</div>` : ''}
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label for="${inputId}" class="text-sm font-medium text-slate-600">Temas estudiados:</label>
+                        <input 
+                            type="number" 
+                            id="${inputId}" 
+                            class="studied-input w-full mt-1 p-2 border-2 ${isPercentMode && !isLocked ? 'bg-slate-100' : 'bg-white'} border-slate-200 rounded-lg text-center font-semibold text-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" 
+                            min="0" 
+                            max="${block.total}" 
+                            value="0"
+                            ${isPercentMode && !isLocked ? 'readonly' : ''}>
+                    </div>
+
+                    <div class="mt-4 text-center bg-indigo-50 p-3 rounded-lg">
+                        <span class="text-sm text-indigo-800 font-semibold">Probabilidad en bloque:</span>
+                        <p class="text-2xl font-bold text-indigo-600 probability-output">0.00%</p>
+                    </div>
+                </div>
+            `;
         };
-        document.getElementById('blocks-container-topic').innerHTML = blocksConfig.map(b => blockTemplate(b, 'topic')).join('');
-        document.getElementById('blocks-container-percent').innerHTML = blocksConfig.map(b => blockTemplate(b, 'percent')).join('');
-        
-        // --- LÓGICA DE LA SIMULACIÓN 3D ---
+
+        // Rellena los contenedores de bloques con el HTML generado
+        topicContainer.innerHTML = blocksConfig.map(b => blockTemplate(b, 'topic')).join('');
+        percentContainer.innerHTML = blocksConfig.map(b => blockTemplate(b, 'percent')).join('');
+
+        /**
+         * Maneja el cálculo óptimo de temas a estudiar para alcanzar una probabilidad deseada.
+         */
+        const handleOptimalCalculation = () => {
+            optimizerMessage.textContent = ''; // Limpia mensajes anteriores
+            const targetOverallProb = parseFloat(document.getElementById('desired-probability').value) / 100;
+            
+            // Validación del porcentaje objetivo
+            if (isNaN(targetOverallProb) || targetOverallProb < 0 || targetOverallProb > 1) {
+                optimizerMessage.textContent = 'Porcentaje objetivo inválido. Debe estar entre 0 y 100.';
+                optimizerMessage.className = 'text-center mt-4 font-semibold text-red-600';
+                return;
+            }
+
+            let lockedProb = 1; // Probabilidad acumulada de los bloques bloqueados
+            const unlockedBlocks = []; // Bloques no bloqueados
+            const studiedTopics = {}; // Temas estudiados por bloque (incluye los bloqueados)
+            
+            // Itera sobre los bloques para separar bloqueados y no bloqueados
+            blocksConfig.forEach(block => {
+                const input = document.getElementById(`${block.id}-input-percent`);
+                const studied = parseInt(input.value, 10);
+                studiedTopics[block.id] = studied; // Guarda el valor actual
+
+                if (state.lockedBlocks[block.id]) {
+                    // Si el bloque está bloqueado, su probabilidad contribuye a la probabilidad fija
+                    lockedProb *= getProb(studied, block.total);
+                } else {
+                    // Si no está bloqueado, se añade a la lista de bloques a optimizar y se inicializa a 0 temas estudiados para la optimización
+                    unlockedBlocks.push(block);
+                    studiedTopics[block.id] = 0; // Reinicia a 0 para el cálculo óptimo
+                }
+            });
+            
+            // Calcula la probabilidad objetivo que deben alcanzar los bloques no bloqueados
+            const unlockedTargetProb = lockedProb > 0 ? targetOverallProb / lockedProb : Infinity;
+
+            // Si el objetivo es inalcanzable con los bloques bloqueados, muestra un mensaje
+            if (unlockedTargetProb > 1) {
+                optimizerMessage.textContent = 'Objetivo inalcanzable con los temas fijados. Reduce el porcentaje deseado o desbloquea más temas.';
+                optimizerMessage.className = 'text-center mt-4 font-semibold text-red-600';
+                return;
+            }
+
+            // Inicia la probabilidad de los bloques no bloqueados
+            let currentUnlockedProb = unlockedBlocks.reduce((acc, b) => acc * getProb(studiedTopics[b.id], b.total), 1);
+
+            // Algoritmo de optimización: añade temas uno a uno al bloque que dé el mayor "salto" de probabilidad
+            while (currentUnlockedProb < unlockedTargetProb) {
+                let bestBlockId = null;
+                let maxGain = -1; // Ganancia máxima de probabilidad
+
+                for (const block of unlockedBlocks) {
+                    const currentStudied = studiedTopics[block.id];
+                    // Si ya se estudiaron todos los temas de este bloque, no se puede mejorar
+                    if (currentStudied >= block.total - 1) continue; 
+                    
+                    // Calcula la ganancia al estudiar un tema más en este bloque
+                    const probBefore = getProb(currentStudied, block.total);
+                    const probAfter = getProb(currentStudied + 1, block.total);
+                    const gain = probAfter - probBefore;
+
+                    // Si esta ganancia es la máxima encontrada hasta ahora, actualiza
+                    if (gain > maxGain) {
+                        maxGain = gain;
+                        bestBlockId = block.id;
+                    }
+                }
+
+                // Si no se puede mejorar más (todos los bloques están al máximo), sale del bucle
+                if (bestBlockId === null) break; 
+                
+                // Incrementa el número de temas estudiados en el mejor bloque
+                studiedTopics[bestBlockId]++; 
+                // Recalcula la probabilidad de los bloques no bloqueados
+                currentUnlockedProb = unlockedBlocks.reduce((acc, b) => acc * getProb(studiedTopics[b.id], b.total), 1);
+            }
+            
+            // Actualiza los inputs de la interfaz con los temas estudiados calculados
+            Object.keys(studiedTopics).forEach(id => {
+                if (!state.lockedBlocks[id]) { // Solo actualiza los no bloqueados
+                    document.getElementById(`${id}-input-percent`).value = studiedTopics[id];
+                }
+            });
+            
+            optimizerMessage.textContent = '¡Cálculo completado!';
+            optimizerMessage.className = 'text-center mt-4 font-semibold text-green-600';
+            calculateAndDisplayProbabilities(); // Recalcula y muestra las probabilidades finales
+        };
+
+        /**
+         * Añade listeners a los inputs de temas estudiados para recalcular probabilidades.
+         */
+        const addInputListeners = () => {
+            const containerId = state.mode === 'topic' ? '#blocks-container-topic' : '#blocks-container-percent';
+            document.querySelectorAll(`${containerId} .studied-input`).forEach(input => {
+                input.removeEventListener('input', calculateAndDisplayProbabilities); // Evita duplicados
+                input.addEventListener('input', calculateAndDisplayProbabilities);
+            });
+        };
+
+        /**
+         * Añade listeners a los iconos de candado para bloquear/desbloquear bloques.
+         */
+        const addLockListeners = () => {
+            document.querySelectorAll('#blocks-container-percent .lock-icon').forEach(icon => {
+                icon.removeEventListener('click', handleLockToggle); // Evita duplicados
+                icon.addEventListener('click', handleLockToggle);
+            });
+        };
+
+        /**
+         * Maneja el evento de clic en el icono de candado.
+         * @param {Event} e - El evento de clic.
+         */
+        const handleLockToggle = (e) => {
+            const id = e.currentTarget.dataset.id;
+            state.lockedBlocks[id] = !state.lockedBlocks[id]; // Invierte el estado de bloqueo
+            // Vuelve a renderizar los bloques del modo porcentaje para actualizar los iconos y inputs
+            percentContainer.innerHTML = blocksConfig.map(b => blockTemplate(b, 'percent')).join('');
+            addLockListeners(); // Vuelve a añadir listeners a los nuevos iconos
+            addInputListeners(); // Vuelve a añadir listeners a los inputs
+            calculateAndDisplayProbabilities(); // Recalcula por si el bloqueo afecta los valores
+        };
+
+        /**
+         * Lee los parámetros de la URL y los aplica a los inputs de temas estudiados.
+         * Útil para compartir configuraciones.
+         */
+        const readUrlParamsAndCalculate = () => {
+            const params = new URLSearchParams(window.location.search);
+            let paramsFound = false;
+            params.forEach((value, key) => {
+                const input = document.getElementById(`${key}-input-topic`);
+                if (input) {
+                    input.value = value;
+                    paramsFound = true;
+                }
+            });
+            if (paramsFound) {
+                calculateAndDisplayProbabilities();
+            }
+        };
+
+        // --- LÓGICA DE LA SIMULACIÓN 3D (BOMBO) ---
+
+        // Objeto global para almacenar las instancias de Three.js y otros estados de la simulación
         let three = {
             scene: null, camera: null, renderer: null, composer: null, controls: null,
-            bomboGroup: null, rotatingGroup: null, balls: [],
-            isSpinning: false, isDropping: false, winningBall: null,
-            animationFrameId: null, ballQueue: [],
-            sounds: {}, soundsInitialized: false
+            bomboGroup: null, rotatingGroup: null, balls: [], // Grupo del bombo, grupo rotatorio y array de bolas
+            isSpinning: false, isDropping: false, winningBall: null, // Estados de la animación
+            animationFrameId: null, ballQueue: [], // ID del frame de animación y cola de bolas a extraer
+            sounds: {}, soundsInitialized: false // Objetos de sonido y bandera de inicialización
         };
-        const bomboRadius = 3;
+        const bomboRadius = 3; // Radio del bombo 3D
 
+        /**
+         * Inicializa los sonidos usando Tone.js.
+         */
         function initSounds() {
-            if (three.soundsInitialized) return;
+            if (three.soundsInitialized) return; // Evita doble inicialización
+            // Sonido para el giro del bombo (ruido marrón)
             three.sounds.spinning = new Tone.NoiseSynth({
                 noise: { type: 'brown' },
                 envelope: { attack: 0.1, decay: 0.2, sustain: 1, release: 0.5 }
             }).toDestination();
-            three.sounds.spinning.volume.value = -20;
+            three.sounds.spinning.volume.value = -20; // Volumen bajo
+
+            // Sonido para la caída de la bola (percusión)
             three.sounds.drop = new Tone.MembraneSynth().toDestination();
+            
+            // Sonido para el resultado final (tono simple)
             three.sounds.result = new Tone.Synth({
-                 oscillator: { type: 'sine' },
-                 envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 0.1 }
+                oscillator: { type: 'sine' },
+                envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 0.1 }
             }).toDestination();
-            three.sounds.result.volume.value = -10;
+            three.sounds.result.volume.value = -10; // Volumen medio
             three.soundsInitialized = true;
         }
 
+        /**
+         * Inicializa la escena 3D de Three.js, cámara, renderizador y controles.
+         */
         function initThreeJS() {
-            if (state.threejsInitialized) return;
+            if (state.threejsInitialized) return; // Evita doble inicialización
             state.threejsInitialized = true;
 
-            initSounds();
+            initSounds(); // Asegura que los sonidos estén inicializados
 
             const container = document.getElementById('bombo-canvas-container');
+            // Configuración de la escena, cámara y renderizador
             three.scene = new THREE.Scene();
             three.camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
-            three.camera.position.set(0, 2.5, 12);
+            three.camera.position.set(0, 2.5, 12); // Posición inicial de la cámara
 
-            three.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            three.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); // Renderizador con antialiasing y fondo transparente
             three.renderer.setSize(container.clientWidth, container.clientHeight);
             three.renderer.setPixelRatio(window.devicePixelRatio);
-            three.renderer.toneMapping = THREE.ReinhardToneMapping;
-            container.appendChild(three.renderer.domElement);
+            three.renderer.toneMapping = THREE.ReinhardToneMapping; // Mapeo de tonos para mejor iluminación
+            container.appendChild(three.renderer.domElement); // Añade el canvas al DOM
 
+            // Controles de órbita para interactuar con la escena 3D
             three.controls = new OrbitControls(three.camera, three.renderer.domElement);
-            three.controls.enableDamping = true;
-            three.controls.minDistance = 5;
-            three.controls.maxDistance = 20;
+            three.controls.enableDamping = true; // Suaviza el movimiento
+            three.controls.minDistance = 5; // Zoom mínimo
+            three.controls.maxDistance = 20; // Zoom máximo
 
-            three.scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 1.8);
+            // Luces para iluminar la escena
+            three.scene.add(new THREE.AmbientLight(0xffffff, 0.7)); // Luz ambiental
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1.8); // Luz direccional
             directionalLight.position.set(5, 10, 7.5);
             three.scene.add(directionalLight);
 
+            // Efectos de post-procesado (Bloom para un efecto de brillo)
             const renderScene = new RenderPass(three.scene, three.camera);
             const bloomPass = new UnrealBloomPass(new THREE.Vector2(container.clientWidth, container.clientHeight), 0.7, 0.4, 0.85);
             three.composer = new EffectComposer(three.renderer);
             three.composer.addPass(renderScene);
             three.composer.addPass(bloomPass);
 
+            // Creación del bombo y las bolas
             createBombo();
-            createBalls(150);
-            animateThreeJS();
-            
+            createBalls(150); // Crea 150 bolas dentro del bombo
+            animateThreeJS(); // Inicia el bucle de animación
+
+            // Listener para redimensionar la escena cuando la ventana cambia de tamaño
             window.addEventListener('resize', onWindowResize, false);
         }
         
+        /**
+         * Crea el modelo 3D del bombo.
+         */
         function createBombo() {
-            three.bomboGroup = new THREE.Group();
-            three.bomboGroup.scale.set(1.3, 1.3, 1.3);
-            three.bomboGroup.position.y = 2.5; 
+            three.bomboGroup = new THREE.Group(); // Grupo principal para el bombo y su soporte
+            three.bomboGroup.scale.set(1.3, 1.3, 1.3); // Escala el bombo
+            three.bomboGroup.position.y = 2.5; // Posiciona el bombo ligeramente más alto
             three.scene.add(three.bomboGroup);
 
-            three.rotatingGroup = new THREE.Group();
+            three.rotatingGroup = new THREE.Group(); // Grupo que rotará (contiene la esfera del bombo y las bolas)
             three.bomboGroup.add(three.rotatingGroup);
 
-            const bomboMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.15, roughness: 0.1, metalness: 0.2, side: THREE.FrontSide });
+            // Material transparente para la esfera del bombo
+            const bomboMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xffffff, transparent: true, opacity: 0.15, 
+                roughness: 0.1, metalness: 0.2, side: THREE.FrontSide 
+            });
             three.rotatingGroup.add(new THREE.Mesh(new THREE.SphereGeometry(bomboRadius, 64, 64), bomboMaterial));
             
+            // Material metálico para los anillos y la rampa de salida
             const metalMaterial = new THREE.MeshStandardMaterial({ color: 0xffd700, roughness: 0.2, metalness: 1.0 });
-            const ringGeo = new THREE.TorusGeometry(bomboRadius, 0.05, 16, 100);
+            const ringGeo = new THREE.TorusGeometry(bomboRadius, 0.05, 16, 100); // Geometría de anillo
             const ring1 = new THREE.Mesh(ringGeo, metalMaterial);
-            ring1.rotation.x = Math.PI / 2;
+            ring1.rotation.x = Math.PI / 2; // Rota el anillo para que sea horizontal
             three.rotatingGroup.add(ring1);
             
-            const chuteGeo = new THREE.CylinderGeometry(0.3, 0.3, 1, 32, 1, true);
+            // Rampa de salida de las bolas
+            const chuteGeo = new THREE.CylinderGeometry(0.3, 0.3, 1, 32, 1, true); // Cilindro hueco
             const chute = new THREE.Mesh(chuteGeo, metalMaterial);
-            chute.position.y = -bomboRadius;
+            chute.position.y = -bomboRadius; // Posiciona la rampa en la parte inferior del bombo
             three.rotatingGroup.add(chute);
 
+            // Soporte del bombo
             const standMaterial = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.4, metalness: 0.8 });
             const horizontalBar = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, bomboRadius * 2 + 2.8, 32), standMaterial);
-            horizontalBar.rotation.z = Math.PI / 2;
+            horizontalBar.rotation.z = Math.PI / 2; // Barra horizontal del soporte
             three.bomboGroup.add(horizontalBar);
 
+            // Patas del soporte
             [-1, 1].forEach(side => {
                 const base = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 1, 0.5, 32), standMaterial);
                 base.position.set((bomboRadius + 1.2) * side, -2.25, 0);
@@ -509,8 +778,13 @@
             });
         }
 
+        /**
+         * Crea un número determinado de bolas 3D y las añade al bombo.
+         * @param {number} count - Número de bolas a crear.
+         */
         function createBalls(count) {
-            const ballGeometry = new THREE.SphereGeometry(0.2, 32, 32);
+            const ballGeometry = new THREE.SphereGeometry(0.2, 32, 32); // Geometría de esfera para las bolas
+            // Colores de los bloques de temas para las bolas
             const blockColors = [
                 temario.aguas.color,
                 temario.carreteras.color,
@@ -519,205 +793,301 @@
 
             for (let i = 0; i < count; i++) {
                 const ballMaterial = new THREE.MeshStandardMaterial({ 
-                    color: blockColors[i % blockColors.length],  
+                    color: blockColors[i % blockColors.length], // Asigna colores cíclicamente
                     roughness: 0.5, 
                     metalness: 0.1 
                 });
                 const ball = new THREE.Mesh(ballGeometry, ballMaterial);
-                resetBallPosition(ball);
-                ball.userData.velocity = new THREE.Vector3((Math.random() - 0.5) * 0.1, (Math.random() - 0.5) * 0.1, (Math.random() - 0.5) * 0.1);
+                resetBallPosition(ball); // Posición inicial aleatoria dentro del bombo
+                ball.userData.velocity = new THREE.Vector3( // Velocidad inicial aleatoria
+                    (Math.random() - 0.5) * 0.1, 
+                    (Math.random() - 0.5) * 0.1, 
+                    (Math.random() - 0.5) * 0.1
+                );
                 three.balls.push(ball);
-                three.rotatingGroup.add(ball);
+                three.rotatingGroup.add(ball); // Añade la bola al grupo que rotará
             }
         }
 
+        /**
+         * Reinicia la posición de una bola dentro del bombo.
+         * @param {THREE.Mesh} ball - La bola 3D a reposicionar.
+         */
         function resetBallPosition(ball) {
-            ball.position.set((Math.random() - 0.5) * (bomboRadius * 1.5), (Math.random() - 0.5) * (bomboRadius * 1.5), (Math.random() - 0.5) * (bomboRadius * 1.5));
+            // Posición aleatoria dentro de un rango para que queden dentro del bombo
+            ball.position.set(
+                (Math.random() - 0.5) * (bomboRadius * 1.5), 
+                (Math.random() - 0.5) * (bomboRadius * 1.5), 
+                (Math.random() - 0.5) * (bomboRadius * 1.5)
+            );
+            // Asegura que la bola no esté fuera del bombo
             if (ball.position.length() > bomboRadius - 0.2) {
                 ball.position.setLength(bomboRadius - 0.2);
             }
         }
 
+        /**
+         * Inicia la extracción de la siguiente bola de la cola.
+         */
         function startNextExtraction() {
             if (three.ballQueue.length === 0) {
-                three.sounds.spinning.triggerRelease();
-                startSimulationBtn.disabled = false;
-                startSimulationBtn.textContent = 'Reiniciar Simulación';
-                startSimulationBtn.classList.replace('bg-gray-500', 'bg-amber-500');
+                // Si no quedan bolas en la cola, la simulación ha terminado
+                three.sounds.spinning.triggerRelease(); // Detiene el sonido de giro
+                startSimulationBtn.disabled = false; // Habilita el botón
+                startSimulationBtn.textContent = 'Reiniciar Simulación'; // Cambia el texto del botón
+                startSimulationBtn.classList.replace('bg-gray-500', 'bg-amber-500'); // Cambia el color del botón
                 return;
             }
-            const topicToExtract = three.ballQueue.shift();
-            startSpin(topicToExtract);
+            const topicToExtract = three.ballQueue.shift(); // Saca el siguiente tema de la cola
+            startSpin(topicToExtract); // Inicia el giro para extraer este tema
         }
 
-function startSpin(topic) { 
-    three.isSpinning = true;
-    three.spinStartTime = performance.now();
-    three.initialRotation = three.rotatingGroup.rotation.x;
-    // AQUÍ: Cambiamos 1 por 6 para que dé 6 vueltas completas
-    three.targetRotation = three.initialRotation + 6 * 2 * Math.PI; // 6 vueltas
-    
-    const onSpinComplete = () => {
-        three.isSpinning = false;
-        three.isDropping = true;
-        selectWinningBall(topic);
-    };
-    
-    const animateSpin = (time) => {
-        const elapsedTime = time - three.spinStartTime;
-        // AQUÍ: Cambiamos 1000 por 3000 para que la animación dure 3 segundos
-        let progress = elapsedTime / 3000; // 3 segundos de giro
-        if (progress >= 1) {
-            progress = 1;
-            onSpinComplete();
-        } else {
-            three.rotatingGroup.rotation.x = three.initialRotation + (three.targetRotation - three.initialRotation) * progress;
-            requestAnimationFrame(animateSpin);
-        }
-    };
-    requestAnimationFrame(animateSpin);
+        /**
+         * Inicia la animación de giro del bombo.
+         * @param {object} topic - El tema que se va a extraer.
+         */
+        function startSpin(topic) {
+            three.isSpinning = true;
+            three.spinStartTime = performance.now();
+            three.initialRotation = three.rotatingGroup.rotation.x;
+            // El bombo dará 6 vueltas completas
+            three.targetRotation = three.initialRotation + 6 * 2 * Math.PI; 
+            
+            // Función que se ejecuta cuando el giro termina
+            const onSpinComplete = () => {
+                three.isSpinning = false;
+                three.isDropping = true; // Inicia la fase de caída
+                selectWinningBall(topic); // Selecciona y prepara la bola ganadora
+            };
+            
+            // Función de animación del giro
+            const animateSpin = (time) => {
+                const elapsedTime = time - three.spinStartTime;
+                // La animación durará 3 segundos
+                let progress = elapsedTime / 3000; 
+                if (progress >= 1) {
+                    progress = 1;
+                    onSpinComplete(); // Llama a la función de completado
+                } else {
+                    // Interpola la rotación para un movimiento suave
+                    three.rotatingGroup.rotation.x = three.initialRotation + (three.targetRotation - three.initialRotation) * progress;
+                    requestAnimationFrame(animateSpin); // Continúa la animación
+                }
+            };
+            requestAnimationFrame(animateSpin); // Inicia la animación
         }
 
+        /**
+         * Selecciona una bola para ser la "ganadora" y la prepara para la caída.
+         * @param {object} topic - El tema asociado a la bola ganadora.
+         */
         function selectWinningBall(topic) {
-            three.winningBall = three.balls.pop();
-            if (!three.winningBall) return;
+            // Saca una bola del array de bolas (simula que sale del bombo)
+            three.winningBall = three.balls.pop(); 
+            if (!three.winningBall) return; // Si no hay bolas, salir
 
+            // Crea un canvas 2D para dibujar el ID del tema en la bola
             const canvas = document.createElement('canvas');
             canvas.width = 512; canvas.height = 512;
             const context = canvas.getContext('2d');
-            const color = new THREE.Color(topic.block.color);
-            context.fillStyle = `rgb(${color.r*255}, ${color.g*255}, ${color.b*255})`;
-            context.fillRect(0, 0, 512, 512);
+            const color = new THREE.Color(topic.block.color); // Obtiene el color del bloque
+            context.fillStyle = `rgb(${color.r*255}, ${color.g*255}, ${color.b*255})`; // Color de fondo de la bola
+            context.fillRect(0, 0, 512, 512); // Rellena el canvas
             
-            context.font = 'bold 90px Inter, sans-serif'; 
-            context.fillStyle = 'white';
+            context.font = 'bold 90px Inter, sans-serif'; // Fuente para el texto
+            context.fillStyle = 'white'; // Color del texto
             context.textAlign = 'center';
             context.textBaseline = 'middle';
-            context.fillText(topic.id, 256, 256);
+            context.fillText(topic.id, 256, 256); // Dibuja el ID del tema en el centro
             
-            const texture = new THREE.CanvasTexture(canvas);
-            three.winningBall.material = new THREE.MeshStandardMaterial({ map: texture });
+            const texture = new THREE.CanvasTexture(canvas); // Crea una textura de Three.js desde el canvas
+            three.winningBall.material = new THREE.MeshStandardMaterial({ map: texture }); // Asigna la textura a la bola
             
-            three.winningBall.position.set(0, -bomboRadius, 0);
+            // Posiciona la bola en la salida del bombo
+            three.winningBall.position.set(0, -bomboRadius, 0); 
             const worldPosition = new THREE.Vector3();
-            three.winningBall.getWorldPosition(worldPosition);
-            three.scene.add(three.winningBall);
-            three.winningBall.position.copy(worldPosition);
-            three.winningBall.rotation.set(0, 0, 0);
+            // Obtiene la posición de la bola en coordenadas del mundo
+            three.winningBall.getWorldPosition(worldPosition); 
+            three.scene.add(three.winningBall); // Añade la bola directamente a la escena para la caída
+            three.winningBall.position.copy(worldPosition); // Copia la posición del mundo
+            three.winningBall.rotation.set(0, 0, 0); // Reinicia la rotación de la bola
             
-            three.sounds.drop.triggerAttackRelease('C2', '0.5s', Tone.now());
+            three.sounds.drop.triggerAttackRelease('C2', '0.5s', Tone.now()); // Reproduce el sonido de caída
 
             const dropStartTime = performance.now();
+            // Función de animación de la caída de la bola
             const animateDrop = (time) => {
                 const elapsed = time - dropStartTime;
-                let t = Math.min(elapsed / 800, 1); // 0.8 segundos de caída
+                let t = Math.min(elapsed / 800, 1); // La caída dura 0.8 segundos
                 
-                three.winningBall.position.y = worldPosition.y - t * 3; // Caída simple
-                three.winningBall.visible = t < 1;
+                three.winningBall.position.y = worldPosition.y - t * 3; // Simula la caída vertical
+                three.winningBall.visible = t < 1; // La bola es visible mientras cae
 
                 if (t < 1) {
-                    requestAnimationFrame(animateDrop);
+                    requestAnimationFrame(animateDrop); // Continúa la animación
                 } else {
-                    displayResultBall(topic);
-                    resetWinningBall();
-                    setTimeout(startNextExtraction, 1500); // Pausa más larga
+                    displayResultBall(topic); // Muestra el resultado en el DOM
+                    resetWinningBall(); // Reinicia la bola para el próximo sorteo
+                    setTimeout(startNextExtraction, 1500); // Pausa antes de la siguiente extracción
                 }
             };
-            requestAnimationFrame(animateDrop);
+            requestAnimationFrame(animateDrop); // Inicia la animación de caída
         }
         
+        /**
+         * Reinicia la bola ganadora a su estado original y la devuelve al bombo.
+         */
         function resetWinningBall() {
             if (!three.winningBall) return;
             three.isDropping = false;
-            three.winningBall.material.dispose(); 
-            three.winningBall.scale.set(1, 1, 1);
-            resetBallPosition(three.winningBall);
-            three.rotatingGroup.add(three.winningBall);
-            three.balls.push(three.winningBall);
-            three.winningBall = null;
+            three.winningBall.material.dispose(); // Libera la memoria de la textura
+            three.winningBall.scale.set(1, 1, 1); // Asegura que la escala sea normal
+            resetBallPosition(three.winningBall); // Reposiciona la bola aleatoriamente
+            three.rotatingGroup.add(three.winningBall); // Vuelve a añadirla al grupo rotatorio
+            three.balls.push(three.winningBall); // La devuelve al array de bolas
+            three.winningBall = null; // Limpia la referencia
         }
         
+        /**
+         * Bucle principal de animación de Three.js.
+         */
         function animateThreeJS() {
             three.animationFrameId = requestAnimationFrame(animateThreeJS);
-            three.controls.update();
-            three.composer.render();
+            three.controls.update(); // Actualiza los controles de órbita
+            three.composer.render(); // Renderiza la escena con efectos de post-procesado
         }
         
+        /**
+         * Maneja el evento de redimensionamiento de la ventana para ajustar el canvas 3D.
+         */
         function onWindowResize() {
             const container = document.getElementById('bombo-canvas-container');
-            if (!container || !state.threejsInitialized) return;
-            three.camera.aspect = container.clientWidth / container.clientHeight;
-            three.camera.updateProjectionMatrix();
-            three.renderer.setSize(container.clientWidth, container.clientHeight);
-            three.composer.setSize(container.clientWidth, container.clientHeight);
+            if (!container || !state.threejsInitialized) return; // Solo si el contenedor existe y Three.js está inicializado
+            three.camera.aspect = container.clientWidth / container.clientHeight; // Ajusta el aspect ratio de la cámara
+            three.camera.updateProjectionMatrix(); // Actualiza la matriz de proyección de la cámara
+            three.renderer.setSize(container.clientWidth, container.clientHeight); // Ajusta el tamaño del renderizador
+            three.composer.setSize(container.clientWidth, container.clientHeight); // Ajusta el tamaño del compositor de efectos
         }
 
+        /**
+         * Inicia la simulación del sorteo de temas.
+         */
         function runSimulation() {
+            // Asegura que el contexto de audio de Tone.js esté activo
             if (Tone.context.state !== 'running') {
                 Tone.start();
             }
-            startSimulationBtn.disabled = true;
+            startSimulationBtn.disabled = true; // Deshabilita el botón durante el sorteo
             startSimulationBtn.textContent = 'Sorteando...';
-            startSimulationBtn.classList.replace('bg-amber-500', 'bg-gray-500');
+            startSimulationBtn.classList.replace('bg-amber-500', 'bg-gray-500'); // Cambia el color del botón
 
+            // Limpia los resultados anteriores
             ['aguas', 'carreteras', 'transportes'].forEach(id => {
                 document.getElementById(`results-${id}`).innerHTML = '';
             });
 
+            // Prepara la cola de bolas a extraer (2 temas aleatorios por cada bloque)
             three.ballQueue = [];
             Object.keys(temario).forEach(blockId => {
-                const block = temario[blockId];
-                const shuffled = [...block.topics].sort(() => 0.5 - Math.random());
-                const selected = shuffled.slice(0, 2);
-                selected.forEach(topic => {
-                    three.ballQueue.push({ ...topic, block: { id: blockId, color: block.color } });
-                });
+                // Solo incluye bloques que tienen temas definidos
+                if (temario[blockId].topics && temario[blockId].topics.length > 0) {
+                    const block = temario[blockId];
+                    // Mezcla los temas del bloque y selecciona 2
+                    const shuffled = [...block.topics].sort(() => 0.5 - Math.random());
+                    const selected = shuffled.slice(0, 2); // Selecciona 2 temas
+                    selected.forEach(topic => {
+                        // Añade el tema a la cola con información de su bloque
+                        three.ballQueue.push({ ...topic, block: { id: blockId, color: block.color } });
+                    });
+                }
             });
             
-            three.sounds.spinning.triggerAttack();
+            // Reproduce el sonido de giro y comienza la extracción 
+            three.sounds.spinning.triggerAttack(); 
             startNextExtraction();
         }
 
+        /**
+         * Muestra la bola de resultado en la interfaz HTML.
+         * @param {object} topic - El tema extraído.
+         */
         function displayResultBall(topic) {
             const resultContainer = document.getElementById(`results-${topic.block.id}`);
+            // Determina la clase de color Tailwind CSS basada en el ID del bloque
             const colorClass = `bg-${topic.block.id === 'aguas' ? 'cyan' : topic.block.id === 'carreteras' ? 'amber' : 'lime'}-500`;
-            const ballHTML = `<div class="result-ball-wrapper"><div class="result-ball bg-slate-100/80 border border-white/20"><div class="ball-id ${colorClass}">${topic.id}</div><div class="topic-details"><p class="font-semibold text-sm text-white">${topic.text}</p></div></div></div>`;
+            
+            // HTML para la bola de resultado
+            const ballHTML = `
+                <div class="result-ball-wrapper">
+                    <div class="result-ball bg-slate-100/80 border border-white/20">
+                        <div class="ball-id ${colorClass}">${topic.id}</div>
+                        <div class="topic-details">
+                            <p class="font-semibold text-sm text-white">${topic.text}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = ballHTML;
             const resultBallWrapper = tempDiv.firstElementChild;
+            // Añade un listener para expandir/contraer los detalles del tema al hacer clic
             resultBallWrapper.querySelector('.result-ball').addEventListener('click', (e) => {
                 e.currentTarget.classList.toggle('expanded');
             });
-            resultContainer.appendChild(resultBallWrapper);
-            three.sounds.result.triggerAttackRelease("C5", "0.1s", Tone.now());
+            resultContainer.appendChild(resultBallWrapper); // Añade la bola al contenedor de resultados
+            three.sounds.result.triggerAttackRelease("C5", "0.1s", Tone.now()); // Reproduce el sonido de resultado
         }
 
-        // --- MANEJO DE LA INTERFAZ ---
-        function updateUI() {
-            const simContainer = document.getElementById('simulation-container');
+        // --- MANEJO GENERAL DE LA INTERFAZ ---
 
+        /**
+         * Actualiza la visibilidad de los diferentes modos de la aplicación.
+         */
+        function updateUI() {
+            // Oculta/muestra los contenedores de contenido según el modo actual
             topicContent.classList.toggle('hidden', state.mode !== 'topic');
             percentContent.classList.toggle('hidden', state.mode !== 'percent');
             simulationContent.classList.toggle('hidden', state.mode !== 'simulation');
-            document.getElementById('summary-calc').classList.toggle('hidden', state.mode === 'simulation');
-            simContainer.classList.toggle('active', state.mode === 'simulation');
             
-            if (state.mode === 'simulation') {
-                document.getElementById('simulation-title').classList.remove('hidden');
-                startSimulationBtn.classList.remove('hidden');
+            // Oculta/muestra el resumen de la calculadora si no estamos en modo simulación
+            summaryCalc.classList.toggle('hidden', state.mode === 'simulation');
+            // Aplica/quita la clase 'active' al contenedor de la simulación para los estilos de fondo
+            simulationContainer.classList.toggle('active', state.mode === 'simulation');
+            
+            // Inicializa Three.js solo cuando se selecciona el modo simulación por primera vez
+            if (state.mode === 'simulation' && !state.threejsInitialized) {
                 initThreeJS();
             }
+
+            // Vuelve a adjuntar listeners para los inputs y candados cada vez que se actualiza la UI
+            // Esto es crucial porque el contenido de los contenedores de bloques se regenera
+            addInputListeners();
+            addLockListeners();
+            calculateAndDisplayProbabilities(); // Recalcula las probabilidades al cambiar de modo
         }
 
+        /**
+         * Maneja el cambio de modo (Calculadora por Temas, Porcentaje, Simulación).
+         * @param {Event} e - El evento de cambio.
+         */
         function handleModeChange(e) {
             state.mode = e.target.value;
-            updateUI();
+            updateUI(); // Actualiza la interfaz
         }
         
-        modeSelectors.forEach(sel => sel.addEventListener('change', handleModeChange));
-        startSimulationBtn.addEventListener('click', runSimulation);
+        // --- EVENT LISTENERS GLOBALES ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Adjunta listeners a los selectores de modo
+            modeSelectors.forEach(sel => sel.addEventListener('change', handleModeChange));
+            // Adjunta listener al botón de calcular óptimo
+            calculateOptimalBtn.addEventListener('click', handleOptimalCalculation);
+            // Adjunta listener al botón de iniciar simulación
+            startSimulationBtn.addEventListener('click', runSimulation);
 
-        updateUI(); // Llamada inicial
+            // Llamada inicial para configurar la UI y cargar parámetros de URL
+            updateUI(); 
+            readUrlParamsAndCalculate();
+        });
     </script>
 </body>
 </html>
