@@ -38,7 +38,7 @@
 
         /* --- ESTILOS ESPECÍFICOS PARA LA SIMULACIÓN 3D --- */
         #simulation-container.active {
-            background: radial-gradient(circle, #3a3a5a, #1a1a2e);
+            background: radial-gradient(circle, #3a3a3a, #1a1a1a); /* Darker background */
             padding-top: 1rem;
             padding-bottom: 2rem;
             border-radius: 1rem;
@@ -103,6 +103,71 @@
         }
         @keyframes fade-in-up {
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 700px;
+            max-height: 80%;
+            overflow-y: auto;
+            position: relative;
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .topic-selection-tree label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .topic-selection-tree input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+        .block-checkbox-container {
+            background-color: #e0e7ff; /* indigo-100 */
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .subblock-checkbox-container {
+            background-color: #eef2ff; /* indigo-50 */
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            margin-left: 1.5rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .topic-checkbox-container {
+            margin-left: 3rem;
+            margin-top: 0.25rem;
         }
     </style>
 </head>
@@ -178,10 +243,18 @@
                     <div id="simulation-container" class="transition-all duration-500">
                         <div class="text-center">
                             <h2 id="simulation-title" class="text-3xl font-bold text-white mb-4">Simulación de Examen 3D</h2>
-                            <div id="bombo-canvas-container"></div>
-                            <button id="start-simulation-btn" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-amber-300 mt-4">
-                                Iniciar Simulación
+                            <button id="select-topics-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300 mb-4">
+                                Elegir Temas
                             </button>
+                            <div id="bombo-canvas-container"></div>
+                            <div class="flex justify-center gap-4 mt-4">
+                                <button id="start-simulation-btn" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-amber-300">
+                                    Iniciar Simulación
+                                </button>
+                                <button id="draw-two-random-btn" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-300">
+                                    Sacar 2 Temas al Azar
+                                </button>
+                            </div>
                         </div>
                         <div id="simulation-results" class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
                             <div class="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-xl">
@@ -200,6 +273,27 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Selección de Temas -->
+    <div id="topic-selection-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 class="text-2xl font-bold text-slate-900 mb-4">Elegir Temas para la Simulación</h2>
+            <div class="flex justify-end mb-4">
+                <button id="reset-selection-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg shadow transition-colors">
+                    Resetear Selección
+                </button>
+            </div>
+            <div id="topic-tree-container" class="topic-selection-tree">
+                <!-- Topics will be dynamically loaded here -->
+            </div>
+            <div class="flex justify-end mt-6">
+                <button id="save-selection-btn" class="bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-indigo-700 transition-colors shadow">
+                    Guardar Selección
+                </button>
             </div>
         </div>
     </div>
@@ -378,7 +472,8 @@
         let state = {
             mode: 'topic', // Modo inicial: 'topic', 'percent', o 'simulation'
             lockedBlocks: {}, // Estado de los bloques bloqueados para el modo porcentaje
-            threejsInitialized: false // Bandera para saber si Three.js ya se inicializó
+            threejsInitialized: false, // Bandera para saber si Three.js ya se inicializó
+            selectedSimulationTopics: new Set() // New: Set to store selected topic IDs for simulation
         };
         // Inicializa todos los bloques como no bloqueados por defecto
         blocksConfig.forEach(b => state.lockedBlocks[b.id] = false);
@@ -394,7 +489,16 @@
         const calculateOptimalBtn = document.getElementById('calculate-optimal-btn');
         const optimizerMessage = document.getElementById('optimizer-message');
         const startSimulationBtn = document.getElementById('start-simulation-btn');
+        const drawTwoRandomBtn = document.getElementById('draw-two-random-btn'); // New: Draw two random topics button
         const simulationContainer = document.getElementById('simulation-container'); // Contenedor de la simulación para estilos
+
+        // New DOM elements for topic selection modal
+        const selectTopicsBtn = document.getElementById('select-topics-btn');
+        const topicSelectionModal = document.getElementById('topic-selection-modal');
+        const closeModalBtn = topicSelectionModal.querySelector('.close-button');
+        const saveSelectionBtn = document.getElementById('save-selection-btn');
+        const resetSelectionBtn = document.getElementById('reset-selection-btn'); // New: Reset selection button
+        const topicTreeContainer = document.getElementById('topic-tree-container');
 
         // --- LÓGICA DE LA CALCULADORA DE PROBABILIDADES ---
 
@@ -722,7 +826,7 @@
 
             // Creación del bombo y las bolas
             createBombo();
-            createBalls(150); // Crea 150 bolas dentro del bombo
+            // No createBalls here, as they will be created dynamically based on selection
             animateThreeJS(); // Inicia el bucle de animación
 
             // Listener para redimensionar la escena cuando la ventana cambia de tamaño
@@ -779,34 +883,33 @@
         }
 
         /**
-         * Crea un número determinado de bolas 3D y las añade al bombo.
-         * @param {number} count - Número de bolas a crear.
+         * Creates 3D balls and adds them to the drum based on selected topics.
+         * @param {Array} topicsToDraw - Array of topic objects to create balls for.
          */
-        function createBalls(count) {
-            const ballGeometry = new THREE.SphereGeometry(0.2, 32, 32); // Geometría de esfera para las bolas
-            // Colores de los bloques de temas para las bolas
-            const blockColors = [
-                temario.aguas.color,
-                temario.carreteras.color,
-                temario.transportes.color
-            ];
+        function createBallsForSelectedTopics(topicsToDraw) {
+            // Clear existing balls
+            three.balls.forEach(ball => three.rotatingGroup.remove(ball));
+            three.balls = [];
 
-            for (let i = 0; i < count; i++) {
+            const ballGeometry = new THREE.SphereGeometry(0.2, 32, 32); // Sphere geometry for balls
+
+            topicsToDraw.forEach(topic => {
                 const ballMaterial = new THREE.MeshStandardMaterial({ 
-                    color: blockColors[i % blockColors.length], // Asigna colores cíclicamente
+                    color: topic.block.color, // Assign color based on block
                     roughness: 0.5, 
                     metalness: 0.1 
                 });
                 const ball = new THREE.Mesh(ballGeometry, ballMaterial);
-                resetBallPosition(ball); // Posición inicial aleatoria dentro del bombo
-                ball.userData.velocity = new THREE.Vector3( // Velocidad inicial aleatoria
+                ball.userData.topicId = topic.id; // Store topic ID in user data
+                resetBallPosition(ball); // Random initial position inside the drum
+                ball.userData.velocity = new THREE.Vector3( // Random initial velocity
                     (Math.random() - 0.5) * 0.1, 
                     (Math.random() - 0.5) * 0.1, 
                     (Math.random() - 0.5) * 0.1
                 );
                 three.balls.push(ball);
-                three.rotatingGroup.add(ball); // Añade la bola al grupo que rotará
-            }
+                three.rotatingGroup.add(ball); // Add ball to the rotating group
+            });
         }
 
         /**
@@ -834,8 +937,10 @@
                 // Si no quedan bolas en la cola, la simulación ha terminado
                 three.sounds.spinning.triggerRelease(); // Detiene el sonido de giro
                 startSimulationBtn.disabled = false; // Habilita el botón
+                drawTwoRandomBtn.disabled = false; // Habilita el botón de sacar 2 al azar
                 startSimulationBtn.textContent = 'Reiniciar Simulación'; // Cambia el texto del botón
                 startSimulationBtn.classList.replace('bg-gray-500', 'bg-amber-500'); // Cambia el color del botón
+                drawTwoRandomBtn.classList.replace('bg-gray-500', 'bg-purple-500'); // Cambia el color del botón
                 return;
             }
             const topicToExtract = three.ballQueue.shift(); // Saca el siguiente tema de la cola
@@ -882,56 +987,64 @@
          * @param {object} topic - El tema asociado a la bola ganadora.
          */
         function selectWinningBall(topic) {
-            // Saca una bola del array de bolas (simula que sale del bombo)
-            three.winningBall = three.balls.pop(); 
-            if (!three.winningBall) return; // Si no hay bolas, salir
+            // Find the ball corresponding to the topic ID
+            const ballIndex = three.balls.findIndex(b => b.userData.topicId === topic.id);
+            if (ballIndex === -1) {
+                console.error("No ball found for topic:", topic.id);
+                // Fallback: if no specific ball, just use a generic one
+                three.winningBall = three.balls.pop(); 
+            } else {
+                three.winningBall = three.balls.splice(ballIndex, 1)[0];
+            }
 
-            // Crea un canvas 2D para dibujar el ID del tema en la bola
+            if (!three.winningBall) return; // If no balls, exit
+
+            // Create a 2D canvas to draw the topic ID on the ball
             const canvas = document.createElement('canvas');
             canvas.width = 512; canvas.height = 512;
             const context = canvas.getContext('2d');
-            const color = new THREE.Color(topic.block.color); // Obtiene el color del bloque
-            context.fillStyle = `rgb(${color.r*255}, ${color.g*255}, ${color.b*255})`; // Color de fondo de la bola
-            context.fillRect(0, 0, 512, 512); // Rellena el canvas
+            const color = new THREE.Color(topic.block.color); // Get block color
+            context.fillStyle = `rgb(${color.r*255}, ${color.g*255}, ${color.b*255})`; // Ball background color
+            context.fillRect(0, 0, 512, 512); // Fill canvas
             
-            context.font = 'bold 90px Inter, sans-serif'; // Fuente para el texto
-            context.fillStyle = 'white'; // Color del texto
+            context.font = 'bold 90px Inter, sans-serif'; // Font for text
+            context.fillStyle = 'white'; // Text color
             context.textAlign = 'center';
             context.textBaseline = 'middle';
-            context.fillText(topic.id, 256, 256); // Dibuja el ID del tema en el centro
+            context.fillText(topic.id, 256, 256); // Draw topic ID in the center
             
-            const texture = new THREE.CanvasTexture(canvas); // Crea una textura de Three.js desde el canvas
-            three.winningBall.material = new THREE.MeshStandardMaterial({ map: texture }); // Asigna la textura a la bola
+            const texture = new THREE.CanvasTexture(canvas); // Create Three.js texture from canvas
+            three.winningBall.material = new THREE.MeshStandardMaterial({ map: texture }); // Assign texture to ball
             
-            // Posiciona la bola en la salida del bombo
+            // Position the ball at the drum's exit
             three.winningBall.position.set(0, -bomboRadius, 0); 
             const worldPosition = new THREE.Vector3();
-            // Obtiene la posición de la bola en coordenadas del mundo
+            // Get ball's world coordinates
             three.winningBall.getWorldPosition(worldPosition); 
-            three.scene.add(three.winningBall); // Añade la bola directamente a la escena para la caída
-            three.winningBall.position.copy(worldPosition); // Copia la posición del mundo
-            three.winningBall.rotation.set(0, 0, 0); // Reinicia la rotación de la bola
+            three.scene.add(three.winningBall); // Add ball directly to scene for dropping
+            three.winningBall.position.copy(worldPosition); // Copy world position
+            three.winningBall.rotation.set(0, 0, 0); // Reset ball rotation
             
-            three.sounds.drop.triggerAttackRelease('C2', '0.5s', Tone.now()); // Reproduce el sonido de caída
+            three.sounds.drop.triggerAttackRelease('C2', '0.5s', Tone.now()); // Play drop sound
 
             const dropStartTime = performance.now();
-            // Función de animación de la caída de la bola
+            // Drop animation function
             const animateDrop = (time) => {
                 const elapsed = time - dropStartTime;
-                let t = Math.min(elapsed / 800, 1); // La caída dura 0.8 segundos
+                let t = Math.min(elapsed / 800, 1); // Drop duration 0.8 seconds
                 
-                three.winningBall.position.y = worldPosition.y - t * 3; // Simula la caída vertical
-                three.winningBall.visible = t < 1; // La bola es visible mientras cae
+                three.winningBall.position.y = worldPosition.y - t * 3; // Simulate vertical drop
+                three.winningBall.visible = t < 1; // Ball is visible while dropping
 
                 if (t < 1) {
-                    requestAnimationFrame(animateDrop); // Continúa la animación
+                    requestAnimationFrame(animateDrop); // Continue animation
                 } else {
-                    displayResultBall(topic); // Muestra el resultado en el DOM
-                    resetWinningBall(); // Reinicia la bola para el próximo sorteo
-                    setTimeout(startNextExtraction, 1500); // Pausa antes de la siguiente extracción
+                    displayResultBall(topic); // Display result in DOM
+                    resetWinningBall(); // Reset ball for next draw
+                    setTimeout(startNextExtraction, 1500); // Pause before next extraction
                 }
             };
-            requestAnimationFrame(animateDrop); // Inicia la animación de caída
+            requestAnimationFrame(animateDrop); // Start drop animation
         }
         
         /**
@@ -940,12 +1053,12 @@
         function resetWinningBall() {
             if (!three.winningBall) return;
             three.isDropping = false;
-            three.winningBall.material.dispose(); // Libera la memoria de la textura
-            three.winningBall.scale.set(1, 1, 1); // Asegura que la escala sea normal
-            resetBallPosition(three.winningBall); // Reposiciona la bola aleatoriamente
-            three.rotatingGroup.add(three.winningBall); // Vuelve a añadirla al grupo rotatorio
-            three.balls.push(three.winningBall); // La devuelve al array de bolas
-            three.winningBall = null; // Limpia la referencia
+            three.winningBall.material.dispose(); // Free texture memory
+            three.winningBall.scale.set(1, 1, 1); // Ensure normal scale
+            resetBallPosition(three.winningBall); // Reposition ball randomly
+            three.rotatingGroup.add(three.winningBall); // Add it back to the rotating group
+            three.balls.push(three.winningBall); // Return it to the balls array
+            three.winningBall = null; // Clear reference
         }
         
         /**
@@ -962,50 +1075,133 @@
          */
         function onWindowResize() {
             const container = document.getElementById('bombo-canvas-container');
-            if (!container || !state.threejsInitialized) return; // Solo si el contenedor existe y Three.js está inicializado
-            three.camera.aspect = container.clientWidth / container.clientHeight; // Ajusta el aspect ratio de la cámara
-            three.camera.updateProjectionMatrix(); // Actualiza la matriz de proyección de la cámara
-            three.renderer.setSize(container.clientWidth, container.clientHeight); // Ajusta el tamaño del renderizador
-            three.composer.setSize(container.clientWidth, container.clientHeight); // Ajusta el tamaño del compositor de efectos
+            if (!container || !state.threejsInitialized) return; // Only if container exists and Three.js is initialized
+            three.camera.aspect = container.clientWidth / container.clientHeight; // Adjust camera aspect ratio
+            three.camera.updateProjectionMatrix(); // Update camera projection matrix
+            three.renderer.setSize(container.clientWidth, container.clientHeight); // Adjust renderer size
+            three.composer.setSize(container.clientWidth, container.clientHeight); // Adjust effect composer size
         }
 
         /**
          * Inicia la simulación del sorteo de temas.
+         * Saca dos temas al azar de CADA bloque seleccionado.
          */
         function runSimulation() {
-            // Asegura que el contexto de audio de Tone.js esté activo
+            // Ensure Tone.js audio context is active
             if (Tone.context.state !== 'running') {
                 Tone.start();
             }
-            startSimulationBtn.disabled = true; // Deshabilita el botón durante el sorteo
+            startSimulationBtn.disabled = true; // Disable button during draw
+            drawTwoRandomBtn.disabled = true; // Disable the other button too
             startSimulationBtn.textContent = 'Sorteando...';
-            startSimulationBtn.classList.replace('bg-amber-500', 'bg-gray-500'); // Cambia el color del botón
+            startSimulationBtn.classList.replace('bg-amber-500', 'bg-gray-500'); // Change button color
+            drawTwoRandomBtn.classList.replace('bg-purple-500', 'bg-gray-500'); // Change button color
 
-            // Limpia los resultados anteriores
+            // Clear previous results
             ['aguas', 'carreteras', 'transportes'].forEach(id => {
                 document.getElementById(`results-${id}`).innerHTML = '';
             });
 
-            // Prepara la cola de bolas a extraer (2 temas aleatorios por cada bloque)
+            // Prepare the queue of balls to extract (2 random topics per selected block/sub-block)
             three.ballQueue = [];
+            const topicsToCreateBalls = []; // Topics that will be visually represented as balls
+
             Object.keys(temario).forEach(blockId => {
-                // Solo incluye bloques que tienen temas definidos
-                if (temario[blockId].topics && temario[blockId].topics.length > 0) {
-                    const block = temario[blockId];
-                    // Mezcla los temas del bloque y selecciona 2
-                    const shuffled = [...block.topics].sort(() => 0.5 - Math.random());
-                    const selected = shuffled.slice(0, 2); // Selecciona 2 temas
-                    selected.forEach(topic => {
-                        // Añade el tema a la cola con información de su bloque
-                        three.ballQueue.push({ ...topic, block: { id: blockId, color: block.color } });
-                    });
+                const block = temario[blockId];
+                if (block.topics && block.topics.length > 0) {
+                    // Filter topics based on selection
+                    const selectableTopicsInBlock = block.topics.filter(topic => state.selectedSimulationTopics.has(topic.id));
+
+                    if (selectableTopicsInBlock.length > 0) {
+                        // Shuffle and select 2 topics if available
+                        const shuffled = [...selectableTopicsInBlock].sort(() => 0.5 - Math.random());
+                        const selected = shuffled.slice(0, Math.min(2, selectableTopicsInBlock.length)); // Select up to 2 topics
+
+                        selected.forEach(topic => {
+                            three.ballQueue.push({ ...topic, block: { id: blockId, name: block.name, color: block.color } });
+                        });
+                        topicsToCreateBalls.push(...selectableTopicsInBlock.map(topic => ({ ...topic, block: { id: blockId, name: block.name, color: block.color } })));
+                    } else {
+                        // If no topics selected in a block, clear its result section
+                        document.getElementById(`results-${blockId}`).innerHTML = '';
+                    }
                 }
             });
+
+            // If no topics are selected at all, show a message and enable the button
+            if (three.ballQueue.length === 0) {
+                alert('No hay temas seleccionados para la simulación. Por favor, elige al menos un tema.');
+                startSimulationBtn.disabled = false;
+                drawTwoRandomBtn.disabled = false;
+                startSimulationBtn.textContent = 'Iniciar Simulación';
+                startSimulationBtn.classList.replace('bg-gray-500', 'bg-amber-500');
+                drawTwoRandomBtn.classList.replace('bg-gray-500', 'bg-purple-500');
+                return;
+            }
+
+            // Create 3D balls only for the selected topics that will be part of the draw
+            createBallsForSelectedTopics(topicsToCreateBalls);
             
-            // Reproduce el sonido de giro y comienza la extracción 
+            // Play spinning sound and start extraction 
             three.sounds.spinning.triggerAttack(); 
             startNextExtraction();
         }
+
+        /**
+         * Inicia la simulación para sacar solo dos temas al azar de todos los seleccionados.
+         */
+        function runTwoRandomTopicsSimulation() {
+            // Ensure Tone.js audio context is active
+            if (Tone.context.state !== 'running') {
+                Tone.start();
+            }
+            startSimulationBtn.disabled = true; // Disable button during draw
+            drawTwoRandomBtn.disabled = true; // Disable the other button too
+            drawTwoRandomBtn.textContent = 'Sorteando...';
+            startSimulationBtn.classList.replace('bg-amber-500', 'bg-gray-500'); // Change button color
+            drawTwoRandomBtn.classList.replace('bg-purple-500', 'bg-gray-500'); // Change button color
+
+            // Clear previous results for all blocks
+            ['aguas', 'carreteras', 'transportes'].forEach(id => {
+                document.getElementById(`results-${id}`).innerHTML = '';
+            });
+
+            three.ballQueue = [];
+            const allSelectedTopics = [];
+
+            // Collect all selected topics from all blocks
+            Object.keys(temario).forEach(blockId => {
+                const block = temario[blockId];
+                if (block.topics && block.topics.length > 0) {
+                    block.topics.forEach(topic => {
+                        if (state.selectedSimulationTopics.has(topic.id)) {
+                            allSelectedTopics.push({ ...topic, block: { id: blockId, name: block.name, color: block.color } });
+                        }
+                    });
+                }
+            });
+
+            if (allSelectedTopics.length < 2) {
+                alert('Necesitas seleccionar al menos 2 temas para esta simulación.');
+                startSimulationBtn.disabled = false;
+                drawTwoRandomBtn.disabled = false;
+                drawTwoRandomBtn.textContent = 'Sacar 2 Temas al Azar';
+                startSimulationBtn.classList.replace('bg-gray-500', 'bg-amber-500');
+                drawTwoRandomBtn.classList.replace('bg-gray-500', 'bg-purple-500');
+                return;
+            }
+
+            // Shuffle all selected topics and pick exactly two
+            const shuffledAllSelected = [...allSelectedTopics].sort(() => 0.5 - Math.random());
+            three.ballQueue = shuffledAllSelected.slice(0, 2);
+
+            // Create 3D balls only for the two selected topics
+            createBallsForSelectedTopics(allSelectedTopics); // Create all selected topics as balls, then the simulation will only draw 2
+
+            three.sounds.spinning.triggerAttack();
+            startNextExtraction();
+        }
+
 
         /**
          * Muestra la bola de resultado en la interfaz HTML.
@@ -1013,10 +1209,10 @@
          */
         function displayResultBall(topic) {
             const resultContainer = document.getElementById(`results-${topic.block.id}`);
-            // Determina la clase de color Tailwind CSS basada en el ID del bloque
+            // Determine Tailwind CSS color class based on block ID
             const colorClass = `bg-${topic.block.id === 'aguas' ? 'cyan' : topic.block.id === 'carreteras' ? 'amber' : 'lime'}-500`;
             
-            // HTML para la bola de resultado
+            // HTML for the result ball
             const ballHTML = `
                 <div class="result-ball-wrapper">
                     <div class="result-ball bg-slate-100/80 border border-white/20">
@@ -1030,13 +1226,144 @@
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = ballHTML;
             const resultBallWrapper = tempDiv.firstElementChild;
-            // Añade un listener para expandir/contraer los detalles del tema al hacer clic
+            // Add listener to expand/collapse topic details on click
             resultBallWrapper.querySelector('.result-ball').addEventListener('click', (e) => {
                 e.currentTarget.classList.toggle('expanded');
             });
-            resultContainer.appendChild(resultBallWrapper); // Añade la bola al contenedor de resultados
-            three.sounds.result.triggerAttackRelease("C5", "0.1s", Tone.now()); // Reproduce el sonido de resultado
+            resultContainer.appendChild(resultBallWrapper); // Add ball to results container
+            three.sounds.result.triggerAttackRelease("C5", "0.1s", Tone.now()); // Play result sound
         }
+
+        // --- LÓGICA DE SELECCIÓN DE TEMAS ---
+
+        /**
+         * Generates the topic selection tree in the modal based on current state.selectedSimulationTopics.
+         */
+        function generateTopicSelectionTree() {
+            topicTreeContainer.innerHTML = ''; // Clear previous content
+
+            Object.keys(temario).forEach(blockId => {
+                const block = temario[blockId];
+                // Skip 'admin' block if it has no topics for simulation
+                if (!block.topics || block.topics.length === 0) return;
+
+                const blockDiv = document.createElement('div');
+                blockDiv.className = 'block-checkbox-container';
+                
+                const blockCheckbox = document.createElement('input');
+                blockCheckbox.type = 'checkbox';
+                blockCheckbox.id = `block-${blockId}`;
+                blockCheckbox.dataset.type = 'block';
+                blockCheckbox.dataset.blockId = blockId;
+                
+                // Determine initial checked state for block checkbox
+                const allTopicsInBlock = block.topics.map(t => t.id);
+                const areAllTopicsInBlockSelected = allTopicsInBlock.every(topicId => state.selectedSimulationTopics.has(topicId));
+                blockCheckbox.checked = areAllTopicsInBlockSelected;
+
+                const blockLabel = document.createElement('label');
+                blockLabel.htmlFor = `block-${blockId}`;
+                blockLabel.className = 'font-bold text-lg text-slate-800';
+                blockLabel.textContent = block.name;
+                
+                blockDiv.appendChild(blockCheckbox);
+                blockDiv.appendChild(blockLabel);
+                
+                const topicsContainer = document.createElement('div');
+                topicsContainer.className = 'topics-container mt-2';
+
+                block.topics.forEach(topic => {
+                    const topicDiv = document.createElement('div');
+                    topicDiv.className = 'topic-checkbox-container';
+
+                    const topicCheckbox = document.createElement('input');
+                    topicCheckbox.type = 'checkbox';
+                    topicCheckbox.id = `topic-${topic.id}`;
+                    topicCheckbox.dataset.type = 'topic';
+                    topicCheckbox.dataset.blockId = blockId;
+                    topicCheckbox.dataset.topicId = topic.id;
+                    topicCheckbox.checked = state.selectedSimulationTopics.has(topic.id); // Set checked state based on current selection
+
+                    const topicLabel = document.createElement('label');
+                    topicLabel.htmlFor = `topic-${topic.id}`;
+                    topicLabel.className = 'text-slate-700';
+                    topicLabel.textContent = `${topic.id} - ${topic.text.substring(0, 100)}...`; // Show snippet of text
+
+                    topicDiv.appendChild(topicCheckbox);
+                    topicDiv.appendChild(topicLabel);
+                    topicsContainer.appendChild(topicDiv);
+
+                    // Add event listener for individual topic checkboxes
+                    topicCheckbox.addEventListener('change', () => {
+                        if (topicCheckbox.checked) {
+                            state.selectedSimulationTopics.add(topicCheckbox.dataset.topicId);
+                        } else {
+                            state.selectedSimulationTopics.delete(topicCheckbox.dataset.topicId);
+                        }
+                        // Update parent block checkbox state
+                        const allBlockTopics = Array.from(topicsContainer.querySelectorAll('input[type="checkbox"][data-type="topic"]'));
+                        const allTopicsInBlockAreChecked = allBlockTopics.every(cb => cb.checked);
+                        blockCheckbox.checked = allTopicsInBlockAreChecked;
+                    });
+                });
+
+                blockDiv.appendChild(topicsContainer);
+                topicTreeContainer.appendChild(blockDiv);
+
+                // Add event listener for block checkbox to toggle all its topics
+                blockCheckbox.addEventListener('change', (e) => {
+                    const isChecked = e.target.checked;
+                    topicsContainer.querySelectorAll('input[type="checkbox"][data-type="topic"]').forEach(topicCb => {
+                        topicCb.checked = isChecked;
+                        if (isChecked) {
+                            state.selectedSimulationTopics.add(topicCb.dataset.topicId);
+                        } else {
+                            state.selectedSimulationTopics.delete(topicCb.dataset.topicId);
+                        }
+                    });
+                });
+            });
+        }
+
+        /**
+         * Opens the topic selection modal and populates it.
+         */
+        function openTopicSelectionModal() {
+            generateTopicSelectionTree(); // Regenerate tree with current selections
+            topicSelectionModal.style.display = 'flex'; // Show the modal
+        }
+
+        /**
+         * Closes the topic selection modal.
+         */
+        function closeTopicSelectionModal() {
+            topicSelectionModal.style.display = 'none'; // Hide the modal
+        }
+
+        /**
+         * Saves the selected topics from the modal.
+         */
+        function saveTopicSelection() {
+            // The state.selectedSimulationTopics Set is already updated by the checkbox listeners
+            closeTopicSelectionModal();
+        }
+
+        /**
+         * Resets all topic selections to default (all selected).
+         */
+        function resetTopicSelection() {
+            state.selectedSimulationTopics.clear(); // Clear current selections
+            // Add all topics back to the set
+            Object.keys(temario).forEach(blockId => {
+                if (temario[blockId].topics) {
+                    temario[blockId].topics.forEach(topic => {
+                        state.selectedSimulationTopics.add(topic.id);
+                    });
+                }
+            });
+            generateTopicSelectionTree(); // Re-render the tree to reflect the reset
+        }
+
 
         // --- MANEJO GENERAL DE LA INTERFAZ ---
 
@@ -1067,7 +1394,7 @@
         }
 
         /**
-         * Maneja el cambio de modo (Calculadora por Temas, Porcentaje, Simulación).
+         * Maneja el cambio de modo (Calculadora por Temas, Porcentaje, Simulación). 
          * @param {Event} e - El evento de cambio.
          */
         function handleModeChange(e) {
@@ -1083,6 +1410,30 @@
             calculateOptimalBtn.addEventListener('click', handleOptimalCalculation);
             // Adjunta listener al botón de iniciar simulación
             startSimulationBtn.addEventListener('click', runSimulation);
+            // New: Adjunta listener al botón de sacar 2 temas al azar
+            drawTwoRandomBtn.addEventListener('click', runTwoRandomTopicsSimulation);
+
+            // New: Listeners for topic selection modal
+            selectTopicsBtn.addEventListener('click', openTopicSelectionModal);
+            closeModalBtn.addEventListener('click', closeTopicSelectionModal);
+            saveSelectionBtn.addEventListener('click', saveTopicSelection);
+            resetSelectionBtn.addEventListener('click', resetTopicSelection); // New: Reset button listener
+            window.addEventListener('click', (event) => {
+                if (event.target === topicSelectionModal) {
+                    closeTopicSelectionModal();
+                }
+            });
+
+            // Initialize all topics as selected by default for simulation ONLY ONCE
+            if (state.selectedSimulationTopics.size === 0) { // Prevent re-initialization on UI updates
+                Object.keys(temario).forEach(blockId => {
+                    if (temario[blockId].topics) {
+                        temario[blockId].topics.forEach(topic => {
+                            state.selectedSimulationTopics.add(topic.id);
+                        });
+                    }
+                });
+            }
 
             // Llamada inicial para configurar la UI y cargar parámetros de URL
             updateUI(); 
